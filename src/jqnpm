@@ -79,6 +79,17 @@ function hasDirectDependencies {
 
 #### Actions
 
+function help {
+	echo "jqnpm: npm style package manager for jq"
+	echo "https://github.com/joelpurra/jqnpm"
+	echo
+	echo "jqnpm <action>"
+	echo
+	echo "Actions"
+	echo "  help        Show this help."
+	echo "  install     Install from the current directory."
+}
+
 function install {
 	# Reads jq.json, puts files in ./jq/packages/
 	# ./jq/packages/$dependencyName/
@@ -134,17 +145,20 @@ function install {
 
 function main {
 	# TODO: implement other actions.
-	#action="$1"
-	local action="install"
+	local action="$1"
 
-	# Currently assuming action is "install"
-	# switch $action
-	# 	case "install":
-			install;
-
-	# 	case "run":
-	# 		TODO: run jq with dependencies
-	#		jq -L
+	# TODO: use a system like "exec jqnpm-$action.sh".
+	case "$action" in
+		'install')
+		    install
+		    ;;
+		'help')
+		    help
+		    ;;
+		*)
+		    help
+		    ;;
+	esac
 }
 
 function init {
