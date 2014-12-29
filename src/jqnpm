@@ -28,6 +28,13 @@ function die {
 }
 
 
+### Basic functionality
+
+# Join an array as delimited string.
+# http://stackoverflow.com/a/17841619
+function join { local IFS="$1"; shift; echo "$*"; }
+
+
 ### Metadata handling
 
 function hasPackageMetadataFile {
@@ -88,6 +95,7 @@ function help {
 	echo "Actions"
 	echo "  help        Show this help."
 	echo "  install     Install from the current directory."
+	echo "  execute     Run the current jq project."
 }
 
 function install {
@@ -110,9 +118,7 @@ function install {
 		directDependencyNames[i++]="$dependencyName"
 	done < <(getDirectDependencyNames)
 
-	local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
-
-	debug 4 "[$(getPackageName)] (preparing) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+	debug 4 "[$(getPackageName)] (preparing install) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 
 	hasDirectDependencies || return 0;
 
@@ -126,6 +132,8 @@ function install {
 		# TODO: use a remote server, like github.
 		local remoteDependencyPath="${JQNPM_PACKAGES_CACHE}/${dependencyName}"
 		[[ ! -d "$remoteDependencyPath" ]] && die 1 "could not find the dependency '${dependencyName}' on the remote server."
+
+		# TODO: fix this lookup?
 		hasPackageMetadataFile || die 1 "the dependency '${dependencyName}' is missing '${packageMetadataFilename}'."
 
 		local localDependencyPath="${localJqPackageBase}/${dependencyName}"
@@ -140,23 +148,56 @@ function install {
 	done
 }
 
+function execute {
+	# TODO: lookup jq.json's "main" property for the path.
+	# TODO: check if the file exists.
+	local packageJqFile="$defaultPackageJqFile"
+
+	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
+
+	# TODO: this array handling feels hacky.
+	# http://mywiki.wooledge.org/BashFAQ/020
+	unset directDependencyNames i
+	while IFS= read -r -d '' dependencyName; do
+		directDependencyNames[i++]="$dependencyName"
+	done < <(getDirectDependencyNames)
+
+	local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
+
+	debug 4 "[$(getPackageName)] (preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+
+	if hasDirectDependencies;
+	then
+		# TODO: don't *completely* redefine the orginal library path?
+		# The default contains useful, and therefore possibly widespread, defaults.
+		# The defaults are also system-dependent.
+		jq -L "${localJqPackageBase}" -f "${PWD}/${packageJqFile}" "$@"
+	else
+		jq -f "${PWD}/${packageJqFile}" "$@"
+	fi
+}
+
 
 ### Always executed
 
 function main {
 	# TODO: implement other actions.
 	local action="$1"
+	shift
 
 	# TODO: use a system like "exec jqnpm-$action.sh".
 	case "$action" in
 		'install')
-		    install
+		    install "$@"
+		    ;;
+		'execute'|'exec')
+		    execute "$@"
 		    ;;
 		'help')
-		    help
+		    help "$@"
 		    ;;
 		*)
-		    help
+		    help "$@"
 		    ;;
 	esac
 }
@@ -174,6 +215,7 @@ function init {
 
 	packageMetadataFilename="jq.json"
 	localJqPackageBase="./.jq/packages"
+	defaultPackageJqFile="src/main.jq"
 }
 
 init "$@";
