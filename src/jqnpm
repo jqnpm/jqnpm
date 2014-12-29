@@ -29,6 +29,8 @@ function debug {
 	shift
 
 	isDebugAtLevel "$messageLevel" && echo -E "jqnpm:" "$@" >&2
+
+	return 0;
 }
 
 function die {
