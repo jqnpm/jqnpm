@@ -4,7 +4,7 @@ set -e
 
 ### Error handling
 
-function debug {
+function isDebugAtLevel {
 	local -i messageLevel="${1:-0}"
 	shift
 
@@ -16,7 +16,19 @@ function debug {
 	# 4 debug
 	# 5 verbose
 
-	(( ${JQNPM_DEBUG_LEVEL:-2} >= $messageLevel )) && echo -E "jqnpm:" "$@" >&2
+	if (( ${JQNPM_DEBUG_LEVEL:-2} >= $messageLevel ));
+	then
+		return 0;
+	else
+		return 1;
+	fi
+}
+
+function debug {
+	local -i messageLevel="${1:-0}"
+	shift
+
+	isDebugAtLevel "$messageLevel" && echo -E "jqnpm:" "$@" >&2
 }
 
 function die {
@@ -155,16 +167,19 @@ function execute {
 
 	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
 
-	# TODO: this array handling feels hacky.
-	# http://mywiki.wooledge.org/BashFAQ/020
-	unset directDependencyNames i
-	while IFS= read -r -d '' dependencyName; do
-		directDependencyNames[i++]="$dependencyName"
-	done < <(getDirectDependencyNames)
+	if isDebugAtLevel 4;
+	then
+		# TODO: this array handling feels hacky.
+		# http://mywiki.wooledge.org/BashFAQ/020
+		unset directDependencyNames i
+		while IFS= read -r -d '' dependencyName; do
+			directDependencyNames[i++]="$dependencyName"
+		done < <(getDirectDependencyNames)
 
-	local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
+		local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
 
-	debug 4 "[$(getPackageName)] (preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+		debug 4 "[$(getPackageName)] (preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+	fi
 
 	if hasDirectDependencies;
 	then
