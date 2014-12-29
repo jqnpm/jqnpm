@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -e
+
+
+### Error handling
+
+function debug {
+	local -i messageLevel="${1:-0}"
+	shift
+
+	# TODO: output debug message level.
+	# 0 fatal
+	# 1 errors
+	# 2 warnings
+	# 3 information
+	# 4 debug
+	# 5 verbose
+
+	(( ${JQNPM_DEBUG_LEVEL:-2} >= $messageLevel )) && echo -E "jqnpm:" "$@" >&2
+}
+
+function die {
+	local -i exitcode="${1:-1}"
+	shift
+
+	debug 0 "$@"
+	exit "$exitcode"
+}
+
+
+### Metadata handling
+
+function hasPackageMetadataFile {
+	if [[ -s "$packageMetadataFilename" ]];
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
+function currentMetadata {
+	cat "$packageMetadataFilename"
+}
+
+function getDirectDependencyNames {
+	# TODO: encode output with '@sh'?
+	currentMetadata | jq --join-output 'def delim: [ 00 ] | implode; (if .dependencies then (.dependencies | keys | (join(delim) + delim)) else empty end)'
+}
+
+function getPackageName {
+	# TODO: encode output with '@sh'?
+	currentMetadata | jq --join-output '.name'
+}
+
+function getDirectDependencyVersion {
+	local dependencyName="$1"
+
+	# TODO: encode output with '@sh'?
+	currentMetadata | jq --join-output --arg dependencyName "$dependencyName" '.dependencies[$dependencyName]'
+}
+
+function hasDirectDependencies {
+	# TODO: this array handling feels hacky.
+	# http://mywiki.wooledge.org/BashFAQ/020
+	unset directDependencyNames i
+	while IFS= read -r -d '' dependencyName; do
+		directDependencyNames[i++]="$dependencyName"
+	done < <(getDirectDependencyNames)
+
+	[[ -z "$directDependencyNames" ]] && return 1;
+
+	local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
+	(( numberOfDirectDependencyNames == 0 )) && return 1;
+
+	return 0;
+}
+
+
+#### Actions
+
+function install {
+	# Reads jq.json, puts files in ./jq/packages/
+	# ./jq/packages/$dependencyName/
+	# ./jq/packages/$dependencyName/src/whatever/
+	# Then reads ./jq/packages/$dependencyName/jq.json, and installs $subdependencies.
+	# ./jq/packages/$dependencyName/.jq/packages/$subdependency/
+	# This continues recursively.	
+	# TODO: build a dependency graph to detect circular dependencies.
+
+	# TODO: enable arguments controlling what is being installed.
+	# For now, assume jq.json is being used, or die.
+	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
+
+	# TODO: this array handling feels hacky.
+	# http://mywiki.wooledge.org/BashFAQ/020
+	unset directDependencyNames i
+	while IFS= read -r -d '' dependencyName; do
+		directDependencyNames[i++]="$dependencyName"
+	done < <(getDirectDependencyNames)
+
+	local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
+
+	debug 4 "[$(getPackageName)] (preparing) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+
+	hasDirectDependencies || return 0;
+
+	for dependencyName in "${directDependencyNames[@]}";
+	do
+		# TODO: use the semantic version and match against remote repo git tags.
+		dependencySemver=$(getDirectDependencyVersion "$dependencyName")
+
+		debug 4 "[$(getPackageName)] (installing) dependencyName '${dependencyName}'@'${dependencySemver}'"
+
+		# TODO: use a remote server, like github.
+		local remoteDependencyPath="${JQNPM_PACKAGES_CACHE}/${dependencyName}"
+		[[ ! -d "$remoteDependencyPath" ]] && die 1 "could not find the dependency '${dependencyName}' on the remote server."
+		hasPackageMetadataFile || die 1 "the dependency '${dependencyName}' is missing '${packageMetadataFilename}'."
+
+		local localDependencyPath="${localJqPackageBase}/${dependencyName}"
+
+		mkdir -p "${localDependencyPath}"
+		cp -r "$remoteDependencyPath/" "${localDependencyPath}/"
+
+		# Install recursively.
+		pushd "${localJqPackageBase}/${dependencyName}/" >/dev/null
+		"$BASH_SOURCE" install
+		popd >/dev/null
+	done
+}
+
+
+### Always executed
+
+function main {
+	# TODO: implement other actions.
+	#action="$1"
+	local action="install"
+
+	# Currently assuming action is "install"
+	# switch $action
+	# 	case "install":
+			install;
+
+	# 	case "run":
+	# 		TODO: run jq with dependencies
+	#		jq -L
+}
+
+function init {
+	# TODO: check for `jq` with support for modules/packages.
+	[[ -z $(which jq) ]] && die 1 "jq is required."
+
+	# TODO: use global/user configuration. For now, set your own path.
+	# A future (online, git) package root could be "https://github.com/".
+	# TODO: have jqnpm download packages automatically to the package-cache.
+	# TODO: only download the best-matching tag, not the entire repository.
+	# WORKAROUND: `export JQNPM_PACKAGES_CACHE="$PWD/package-cache"`
+	[[ -z "$JQNPM_PACKAGES_CACHE" || ! -d "$JQNPM_PACKAGES_CACHE" ]] && die 1 "could not find remote packages base folder; a '\$JQNPM_PACKAGES_CACHE' path is required."
+
+	packageMetadataFilename="jq.json"
+	localJqPackageBase="./.jq/packages"
+}
+
+init "$@";
+main "$@";
