@@ -1,0 +1,7 @@
+{
+    "name": "pack2",
+    "version": "1.0.0",
+    "dependencies": {
+        "anotheruser/pack3": "^1.0.0"
+    }
+}
