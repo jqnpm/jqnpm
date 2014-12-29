@@ -1,0 +1,8 @@
+{
+    "name": "local-project",
+    "version": "0.0.1",
+    "dependencies": {
+        "anotheruser/pack1": "^1.0.0",
+        "someuser/pack2": "^1.0.0"
+    }
+}
