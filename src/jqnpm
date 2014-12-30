@@ -33,6 +33,20 @@ function debug {
 	return 0;
 }
 
+function debugInPackageIfAvailable {
+	local -i messageLevel="${1:-0}"
+	shift
+
+	if hasPackageMetadataFile;
+	then
+		debugInPackage "$messageLevel" "[$(getPackageName)]" "$@"
+	else
+		debug "$messageLevel" "$@"
+	fi
+
+	return 0;
+}
+
 function debugInPackage {
 	local -i messageLevel="${1:-0}"
 	shift
@@ -56,6 +70,12 @@ function die {
 # Join an array as delimited string.
 # http://stackoverflow.com/a/17841619
 function join { local IFS="$1"; shift; echo "$*"; }
+
+function getTempFilePath {
+	local base=$(basename "$BASH_SOURCE")
+
+	echo "$(mktemp "${TMPDIR:-TMP}/${base}.XXXXXX")"
+}
 
 
 ### Metadata handling
@@ -116,6 +136,46 @@ function hasDirectDependencies {
 	return 0;
 }
 
+function createEmptyJqJsonIfNecessary {
+	if [[ ! -s "$packageMetadataFilename" ]];
+	then
+		echo '{}' > "$packageMetadataFilename"
+	fi
+}
+
+read -d '' addOrUpdateDependencyInJqJson <<-'EOF' || true
+if (.dependencies | not)
+then
+	.dependencies = {}
+else
+	.
+end
+| .dependencies[$depName] = $depSemverRange
+EOF
+
+function addOrUpdateDependencyAndRangePairInJqJson {
+	local dependencyName="$1"
+	local dependencySemverRange="$2"
+	local tmpFilePath=$(getTempFilePath)
+
+	createEmptyJqJsonIfNecessary
+
+	<"$packageMetadataFilename" jq --arg depName "$dependencyName" --arg depSemverRange "$dependencySemverRange" "$addOrUpdateDependencyInJqJson" >"$tmpFilePath"
+	cp "$tmpFilePath" "$packageMetadataFilename"
+	rm "$tmpFilePath"
+}
+
+function addOrUpdateDependencyAndRangeInJqJson {
+	IFS='@' read -ra nameAndVersion <<< "$1"
+	shift
+	local dependencyName="${nameAndVersion[0]}"
+	local dependencySemverRange="${nameAndVersion[1]}"
+
+	debugInPackageIfAvailable 4 "(adding/updating in jq.json) dependency '${dependencyName}'@'${dependencySemverRange}'"
+
+	addOrUpdateDependencyAndRangePairInJqJson "$dependencyName" "$dependencySemverRange"
+}
+
 
 #### Actions
 
@@ -133,13 +193,12 @@ function help {
 }
 
 function fetchSingle {
-	local dependencyName="$1"
+	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
+	local dependencyName="${nameAndVersion[0]}"
+	local dependencySemverRange="${nameAndVersion[1]}"
 
-	# TODO: use the semantic version and match against remote repo git tags.
-	dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
-
-	debugInPackage 4 "(installing) dependencyName '${dependencyName}'@'${dependencySemverRange}'"
+	debugInPackageIfAvailable 4 "(fetching) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
 	# TODO: use a local folder per remote server, /github.com/?
 	# TODO REMOVE: using git bundles for now; use only for testing later.
@@ -157,11 +216,17 @@ function fetchSingle {
 	# TODO: use --bare repos, bundles or maybe zip files in cache?
 	# git clone --branch <tag> --single-branch --depth 1 "$remote" "$cache"
 	# TODO: fail gracefully if git fails.
-	debugInPackage 3 $(echo "Cloning '${remote}' to '${cache}'" | replaceHomeWithTilde)
+	debugInPackageIfAvailable 3 $(echo "Cloning '${remote}' to '${cache}'" | replaceHomeWithTilde)
 	git clone --single-branch --depth 1 --quiet "$remote" "$cache"
 }
 
-function fetch {
+function fetchSingleManually {
+	debugInPackageIfAvailable 4 "(fetching manually) ${1}"
+
+	fetchSingle "$1"
+}
+
+function fetchFromJqJson {
 	# TODO: enable arguments controlling what is being fetched.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -182,7 +247,10 @@ function fetch {
 
 	for dependencyName in "${directDependencyNames[@]}";
 	do
-		fetchSingle "$dependencyName"
+		# TODO: use the semantic version and match against remote repo git tags.
+		local dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
+
+		fetchSingle "${dependencyName}@${dependencySemverRange}"
 
 		local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
 
@@ -193,14 +261,26 @@ function fetch {
 	done
 }
 
+function fetch {
+	if [[ -z "$1" ]];
+	then
+		fetchFromJqJson
+	else
+		fetchSingleManually "$1"
+	fi
+}
+
 function installSingle {
-	local dependencyName="$1"
+	# Make sure the remote repository is in the local cache.
+	# TODO: implement --no-fetch.
+	"$BASH_SOURCE" fetch "$1"
+
+	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
+	local dependencyName="${nameAndVersion[0]}"
+	local dependencySemverRange="${nameAndVersion[1]}"
 
-	# TODO: use the semantic version and match against remote repo git tags.
-	dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
-
-	debugInPackage 4 "(installing) dependencyName '${dependencyName}'@'${dependencySemverRange}'"
+	debugInPackageIfAvailable 4 "(installing) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
 	local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
 	local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
@@ -214,7 +294,16 @@ function installSingle {
 	popd >/dev/null
 }
 
-function install {
+function installSingleManually {
+	debugInPackageIfAvailable 4 "(installing manually) ${1}"
+
+	installSingle "$1"
+
+	# TODO: if semver range is empty, extract most recent dependency version, use it as the single '=1.2.3' range when saving.
+	addOrUpdateDependencyAndRangeInJqJson "$1"
+}
+
+function installFromJqJson {
 	# TODO: enable arguments controlling what is being installed.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -238,14 +327,12 @@ function install {
 
 	hasDirectDependencies || return 0;
 
-	# Make sure the remote repository is in the local cache.
-	# TODO: fetch only $dependencyName.
-	# TODO: implement --no-fetch.
-	"$BASH_SOURCE" fetch
-
 	for dependencyName in "${directDependencyNames[@]}";
 	do
-		installSingle "$dependencyName"
+		# TODO: use the semantic version and match against remote repo git tags.
+		local dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
+
+		installSingle "${dependencyName}@${dependencySemverRange}"
 
 		local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
 
@@ -254,6 +341,15 @@ function install {
 		"$BASH_SOURCE" install
 		popd >/dev/null
 	done
+}
+
+function install {
+	if [[ -z "$1" ]];
+	then
+		installFromJqJson
+	else
+		installSingleManually "$1"
+	fi
 }
 
 function execute {
@@ -275,7 +371,7 @@ function execute {
 
 		local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
 
-		debugInPackage 4 "(preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+		debugInPackageIfAvailable 4 "(preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 	fi
 
 	if hasDirectDependencies;
@@ -324,6 +420,7 @@ function init {
 	# TODO: check for `git` with support for `git clone --branch <tag> --single-branch --depth 1`.
 	[[ -z $(which git) ]] && die 1 "git is required."
 
+	# TODO: normalize configuration, configuration defaults and internal variable names.
 	config_default_remoteBase="https://github.com"
 	config_default_packagesCache="$HOME/.jq/packages"
 
