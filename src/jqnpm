@@ -19,9 +19,9 @@ function isDebugAtLevel {
 	if (( ${JQNPM_DEBUG_LEVEL:-2} >= $messageLevel ));
 	then
 		return 0;
-	else
-		return 1;
 	fi
+
+	return 1;
 }
 
 function debug {
@@ -29,6 +29,15 @@ function debug {
 	shift
 
 	isDebugAtLevel "$messageLevel" && echo -E "jqnpm:" "$@" >&2
+
+	return 0;
+}
+
+function debugInPackage {
+	local -i messageLevel="${1:-0}"
+	shift
+
+	debug "$messageLevel" "[$(getPackageName)]" "$@"
 
 	return 0;
 }
@@ -118,9 +127,9 @@ function fetchSingle {
 	shift
 
 	# TODO: use the semantic version and match against remote repo git tags.
-	dependencySemver=$(getDirectDependencyVersion "$dependencyName")
+	dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
 
-	debug 4 "[$(getPackageName)] (installing) dependencyName '${dependencyName}'@'${dependencySemver}'"
+	debugInPackage 4 "(installing) dependencyName '${dependencyName}'@'${dependencySemverRange}'"
 
 	# TODO: use a local folder per remote server, /github.com/?
 	# TODO REMOVE: using git bundles for now; use only for testing later.
@@ -156,7 +165,7 @@ function fetch {
 		directDependencyNames[i++]="$dependencyName"
 	done < <(getDirectDependencyNames)
 
-	debug 4 "[$(getPackageName)] (preparing fetch) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+	debugInPackage 4 "(preparing fetch) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 
 	hasDirectDependencies || return 0;
 
@@ -178,23 +187,17 @@ function installSingle {
 	shift
 
 	# TODO: use the semantic version and match against remote repo git tags.
-	dependencySemver=$(getDirectDependencyVersion "$dependencyName")
+	dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
 
-	debug 4 "[$(getPackageName)] (installing) dependencyName '${dependencyName}'@'${dependencySemver}'"
+	debugInPackage 4 "(installing) dependencyName '${dependencyName}'@'${dependencySemverRange}'"
 
-	# TODO: use a remote server, like github.
-	local remoteDependencyPath="${JQNPM_PACKAGES_CACHE}/${dependencyName}"
-	[[ ! -d "$remoteDependencyPath" ]] && die 1 "could not find the dependency '${dependencyName}' on the remote server."
-
-	# TODO: fix this lookup?
-	hasPackageMetadataFile || die 1 "the dependency '${dependencyName}' is missing '${packageMetadataFilename}'."
-
+	local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
 	local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
 
 	mkdir -p "$localDependencyPath"
 
 	# Use `git archive` to copy git content instead of the repository.
-	pushd "$remoteDependencyPath" >/dev/null
+	pushd "$cache" >/dev/null
 	# TODO: use the right tag.
 	git archive HEAD | tar x -C "$localDependencyPath"
 	popd >/dev/null
@@ -220,7 +223,7 @@ function install {
 		directDependencyNames[i++]="$dependencyName"
 	done < <(getDirectDependencyNames)
 
-	debug 4 "[$(getPackageName)] (preparing install) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+	debugInPackage 4 "(preparing install) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 
 	hasDirectDependencies || return 0;
 
@@ -260,7 +263,7 @@ function execute {
 
 		local numberOfDirectDependencyNames="${#directDependencyNames[@]}"
 
-		debug 4 "[$(getPackageName)] (preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+		debugInPackage 4 "(preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 	fi
 
 	if hasDirectDependencies;
