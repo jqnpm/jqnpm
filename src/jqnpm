@@ -69,6 +69,10 @@ function hasPackageMetadataFile {
 	return 1;
 }
 
+function requiresJqJson {
+	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
+}
+
 function replaceHomeWithTilde {
 	local fixedHome="${HOME//|/\|}"
 
@@ -158,12 +162,12 @@ function fetchSingle {
 }
 
 function fetch {
+	# TODO: enable arguments controlling what is being fetched.
+	# For now, assume jq.json is being used, or die.
+	requiresJqJson
+
 	# Reads jq.json, clone remote repos to ./jq/packages/username/reponame
 	# This continues recursively.	
-
-	# TODO: enable arguments controlling what is being installed.
-	# For now, assume jq.json is being used, or die.
-	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
 
 	# TODO: this array handling feels hacky.
 	# http://mywiki.wooledge.org/BashFAQ/020
@@ -211,6 +215,10 @@ function installSingle {
 }
 
 function install {
+	# TODO: enable arguments controlling what is being installed.
+	# For now, assume jq.json is being used, or die.
+	requiresJqJson
+
 	# Reads jq.json, puts files in ./jq/packages/
 	# ./jq/packages/$dependencyName/
 	# ./jq/packages/$dependencyName/src/whatever/
@@ -218,10 +226,6 @@ function install {
 	# ./jq/packages/$dependencyName/.jq/packages/$subdependency/
 	# This continues recursively.	
 	# TODO: build a dependency graph to detect circular dependencies.
-
-	# TODO: enable arguments controlling what is being installed.
-	# For now, assume jq.json is being used, or die.
-	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
 
 	# TODO: this array handling feels hacky.
 	# http://mywiki.wooledge.org/BashFAQ/020
@@ -253,11 +257,12 @@ function install {
 }
 
 function execute {
+	# For now, assume jq.json is being used, or die.
+	requiresJqJson
+
 	# TODO: lookup jq.json's "main" property for the path.
 	# TODO: check if the file exists.
 	local packageJqFile="$defaultPackageJqFile"
-
-	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
 
 	if isDebugAtLevel 4;
 	then
