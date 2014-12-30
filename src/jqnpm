@@ -69,6 +69,12 @@ function hasPackageMetadataFile {
 	return 1;
 }
 
+function replaceHomeWithTilde {
+	local fixedHome="${HOME//|/\|}"
+
+	sed "s|$fixedHome|~|g"
+}
+
 function currentMetadata {
 	cat "$packageMetadataFilename"
 }
@@ -147,7 +153,8 @@ function fetchSingle {
 	# TODO: use --bare repos, bundles or maybe zip files in cache?
 	# git clone --branch <tag> --single-branch --depth 1 "$remote" "$cache"
 	# TODO: fail gracefully if git fails.
-	git clone --single-branch --depth 1 "$remote" "$cache"
+	debugInPackage 3 $(echo "Cloning '${remote}' to '${cache}'" | replaceHomeWithTilde)
+	git clone --single-branch --depth 1 --quiet "$remote" "$cache"
 }
 
 function fetch {
