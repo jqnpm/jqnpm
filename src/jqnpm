@@ -188,6 +188,11 @@ function install {
 
 	hasDirectDependencies || return 0;
 
+	# Make sure the remote repository is in the local cache.
+	# TODO: fetch only $dependencyName.
+	# TODO: implement --no-fetch.
+	"$BASH_SOURCE" fetch
+
 	for dependencyName in "${directDependencyNames[@]}";
 	do
 		# TODO: use the semantic version and match against remote repo git tags.
@@ -202,13 +207,18 @@ function install {
 		# TODO: fix this lookup?
 		hasPackageMetadataFile || die 1 "the dependency '${dependencyName}' is missing '${packageMetadataFilename}'."
 
-		local localDependencyPath="${localJqPackageBase}/${dependencyName}"
+		local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
 
-		mkdir -p "${localDependencyPath}"
-		cp -r "$remoteDependencyPath/" "${localDependencyPath}/"
+		mkdir -p "$localDependencyPath"
+
+		# Use `git archive` to copy git content instead of the repository.
+		pushd "$remoteDependencyPath" >/dev/null
+		# TODO: use the right tag.
+		git archive HEAD | tar x -C "$localDependencyPath"
+		popd >/dev/null
 
 		# Install recursively.
-		pushd "${localJqPackageBase}/${dependencyName}/" >/dev/null
+		pushd "$localDependencyPath" >/dev/null
 		"$BASH_SOURCE" install
 		popd >/dev/null
 	done
