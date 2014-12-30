@@ -108,8 +108,60 @@ function help {
 	echo
 	echo "Actions"
 	echo "  help        Show this help."
+	echo "  fetch       Preload from remote base."
 	echo "  install     Install from the current directory."
 	echo "  execute     Run the current jq project."
+}
+
+function fetch {
+	# Reads jq.json, clone remote repos to ./jq/packages/username/reponame
+	# This continues recursively.	
+
+	# TODO: enable arguments controlling what is being installed.
+	# For now, assume jq.json is being used, or die.
+	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
+
+	# TODO: this array handling feels hacky.
+	# http://mywiki.wooledge.org/BashFAQ/020
+	unset directDependencyNames i
+	while IFS= read -r -d '' dependencyName; do
+		directDependencyNames[i++]="$dependencyName"
+	done < <(getDirectDependencyNames)
+
+	debug 4 "[$(getPackageName)] (preparing fetch) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+
+	hasDirectDependencies || return 0;
+
+	for dependencyName in "${directDependencyNames[@]}";
+	do
+		# TODO: use the semantic version and match against remote repo git tags.
+		dependencySemver=$(getDirectDependencyVersion "$dependencyName")
+
+		debug 4 "[$(getPackageName)] (installing) dependencyName '${dependencyName}'@'${dependencySemver}'"
+
+		# TODO: use a local folder per remote server, /github.com/?
+		# TODO REMOVE: using git bundles for now; use only for testing later.
+		local remote="${JQNPM_REMOTE_BASE:-config_default_remoteBase}/${dependencyName}.bundle"
+		local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
+
+		if [[ ! -d "$cache" ]];
+		then
+			mkdir -p "$cache"
+		fi
+
+		# TODO: get list of local tags, match against it.
+		# TODO: get a list of remote tags.
+		# TODO: only download the best-matching tag, not the entire repository.
+		# TODO: use --bare repos, bundles or maybe zip files in cache?
+		# git clone --branch <tag> --single-branch --depth 1 "$remote" "$cache"
+		# TODO: fail gracefully if git fails.
+		git clone --single-branch --depth 1 "$remote" "$cache"
+
+		# Fetch recursively.
+		pushd "$cache" >/dev/null
+		"$BASH_SOURCE" fetch
+		popd >/dev/null
+	done
 }
 
 function install {
@@ -204,18 +256,21 @@ function main {
 
 	# TODO: use a system like "exec jqnpm-$action.sh".
 	case "$action" in
+		'fetch')
+			fetch "$@"
+			;;
 		'install')
-		    install "$@"
-		    ;;
+			install "$@"
+			;;
 		'execute'|'exec')
-		    execute "$@"
-		    ;;
+			execute "$@"
+			;;
 		'help')
-		    help "$@"
-		    ;;
+			help "$@"
+			;;
 		*)
-		    help "$@"
-		    ;;
+			help "$@"
+			;;
 	esac
 }
 
@@ -223,12 +278,11 @@ function init {
 	# TODO: check for `jq` with support for modules/packages.
 	[[ -z $(which jq) ]] && die 1 "jq is required."
 
-	# TODO: use global/user configuration. For now, set your own path.
-	# A future (online, git) package root could be "https://github.com/".
-	# TODO: have jqnpm download packages automatically to the package-cache.
-	# TODO: only download the best-matching tag, not the entire repository.
-	# WORKAROUND: `export JQNPM_PACKAGES_CACHE="$PWD/package-cache"`
-	[[ -z "$JQNPM_PACKAGES_CACHE" || ! -d "$JQNPM_PACKAGES_CACHE" ]] && die 1 "could not find remote packages base folder; a '\$JQNPM_PACKAGES_CACHE' path is required."
+	# TODO: check for `git` with support for `git clone --branch <tag> --single-branch --depth 1`.
+	[[ -z $(which git) ]] && die 1 "git is required."
+
+	config_default_remoteBase="https://github.com"
+	config_default_packagesCache="$HOME/.jq/packages"
 
 	packageMetadataFilename="jq.json"
 	localJqPackageBase="./.jq/packages"
