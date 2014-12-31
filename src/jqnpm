@@ -74,6 +74,7 @@ function join { local IFS="$1"; shift; echo "$*"; }
 function getTempFilePath {
 	local base=$(basename "$BASH_SOURCE")
 
+	# TODO: remove temp file(s).
 	echo "$(mktemp "${TMPDIR:-TMP}/${base}.XXXXXX")"
 }
 
@@ -283,7 +284,7 @@ function installSingle {
 	debugInPackageIfAvailable 4 "(installing) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
 	local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
-	local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
+	local localDependencyPath="${PWD}/${localJqPackageBase}/${dependencyName}"
 
 	mkdir -p "$localDependencyPath"
 
@@ -334,7 +335,7 @@ function installFromJqJson {
 
 		installSingle "${dependencyName}@${dependencySemverRange}"
 
-		local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
+		local localDependencyPath="${PWD}/${localJqPackageBase}/${dependencyName}"
 
 		# Install recursively.
 		pushd "$localDependencyPath" >/dev/null
@@ -414,8 +415,8 @@ function main {
 }
 
 function init {
-	# TODO: check for `jq` with support for modules/packages.
 	[[ -z $(which jq) ]] && die 1 "jq is required."
+	jq --null-input --join-output -L '.' '"x"' &>/dev/null || die 1 "A newer jq with module support (etcetera) is required."
 
 	# TODO: check for `git` with support for `git clone --branch <tag> --single-branch --depth 1`.
 	[[ -z $(which git) ]] && die 1 "git is required."
