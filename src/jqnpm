@@ -137,10 +137,33 @@ function hasDirectDependencies {
 	return 0;
 }
 
+# TODO: use "real" versions for jq and jqnpm.
+read -d '' defaultMinmalJqJson <<-'EOF' || true
+{
+    "name": "TO BE REPLACED",
+    "version": "0.1.0",
+    "main": "./src/main.jq",
+    "dependencies": {},
+    "engines": {
+        "jq": "^1.5.0",
+        "jqnpm": "^1.0.0"
+    }
+}
+EOF
+
 function createEmptyJqJsonIfNecessary {
 	if [[ ! -s "$packageMetadataFilename" ]];
 	then
-		echo '{}' > "$packageMetadataFilename"
+		local packageName=$(basename "$PWD")
+		echo "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
+	fi
+}
+
+function createEmptyMainJqIfNecessary {
+	if [[ ! -s "$defaultPackageJqFile" ]];
+	then
+		mkdir -p "$(dirname "$defaultPackageJqFile")"
+		echo "# Write your jq code here!" >"$defaultPackageJqFile"
 	fi
 }
 
@@ -353,6 +376,11 @@ function install {
 	fi
 }
 
+function initialize {
+	createEmptyJqJsonIfNecessary
+	createEmptyMainJqIfNecessary
+}
+
 function execute {
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -402,6 +430,9 @@ function main {
 		'install')
 			install "$@"
 			;;
+		'initialize'|'init')
+			initialize "$@"
+			;;
 		'execute'|'exec')
 			execute "$@"
 			;;
@@ -414,7 +445,7 @@ function main {
 	esac
 }
 
-function init {
+function initJqnpm {
 	[[ -z $(which jq) ]] && die 1 "jq is required."
 	jq --null-input --join-output -L '.' '"x"' &>/dev/null || die 1 "A newer jq with module support (etcetera) is required."
 
@@ -431,5 +462,5 @@ function init {
 	defaultPackageJqFile="src/main.jq"
 }
 
-init "$@";
+initJqnpm "$@";
 main "$@";
