@@ -201,9 +201,9 @@ function fetchSingle {
 	debugInPackageIfAvailable 4 "(fetching) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
 	# TODO: use a local folder per remote server, /github.com/?
-	# TODO REMOVE: using git bundles for now; use only for testing later.
-	local remote="${JQNPM_REMOTE_BASE:-config_default_remoteBase}/${dependencyName}.bundle"
-	local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
+	# TODO: make building remote and cache variables functions.
+	local remote="${JQNPM_REMOTE_BASE:-$config_default_remoteBase}/${dependencyName}${JQNPM_REMOTE_SUFFIX:-$config_default_remoteSuffix}"
+	local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
 
 	if [[ ! -d "$cache" ]];
 	then
@@ -252,7 +252,7 @@ function fetchFromJqJson {
 
 		fetchSingle "${dependencyName}@${dependencySemverRange}"
 
-		local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
+		local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
 
 		# Fetch recursively.
 		pushd "$cache" >/dev/null
@@ -282,7 +282,7 @@ function installSingle {
 
 	debugInPackageIfAvailable 4 "(installing) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
-	local cache="${JQNPM_PACKAGES_CACHE:-config_default_packagesCache}/${dependencyName}"
+	local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
 	local localDependencyPath="$PWD/${localJqPackageBase}/${dependencyName}"
 
 	mkdir -p "$localDependencyPath"
@@ -421,7 +421,8 @@ function init {
 	[[ -z $(which git) ]] && die 1 "git is required."
 
 	# TODO: normalize configuration, configuration defaults and internal variable names.
-	config_default_remoteBase="https://github.com"
+	config_default_remoteBase="git://github.com"
+	config_default_remoteSuffix=".git"
 	config_default_packagesCache="$HOME/.jq/packages"
 
 	packageMetadataFilename="jq.json"
