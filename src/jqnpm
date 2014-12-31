@@ -90,6 +90,15 @@ function hasPackageMetadataFile {
 	return 1;
 }
 
+function hasPackageMainJq {
+	if [[ -s "$defaultPackageJqFile" ]];
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
 function requiresJqJson {
 	hasPackageMetadataFile || die 1 "missing '${packageMetadataFilename}'."
 }
@@ -152,7 +161,7 @@ read -d '' defaultMinmalJqJson <<-'EOF' || true
 EOF
 
 function createEmptyJqJsonIfNecessary {
-	if [[ ! -s "$packageMetadataFilename" ]];
+	if ! hasPackageMetadataFile;
 	then
 		local packageName=$(basename "$PWD")
 		echo "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
@@ -160,7 +169,7 @@ function createEmptyJqJsonIfNecessary {
 }
 
 function createEmptyMainJqIfNecessary {
-	if [[ ! -s "$defaultPackageJqFile" ]];
+	if ! hasPackageMainJq;
 	then
 		mkdir -p "$(dirname "$defaultPackageJqFile")"
 		echo "# Write your jq code here!" >"$defaultPackageJqFile"
@@ -382,14 +391,7 @@ function initialize {
 }
 
 function execute {
-	# For now, assume jq.json is being used, or die.
-	requiresJqJson
-
-	# TODO: lookup jq.json's "main" property for the path.
-	# TODO: check if the file exists.
-	local packageJqFile="$defaultPackageJqFile"
-
-	if isDebugAtLevel 4;
+	if hasPackageMetadataFile && isDebugAtLevel 4;
 	then
 		# TODO: this array handling feels hacky.
 		# http://mywiki.wooledge.org/BashFAQ/020
@@ -403,14 +405,32 @@ function execute {
 		debugInPackageIfAvailable 4 "(preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 	fi
 
-	if hasDirectDependencies;
+	if hasPackageMetadataFile && hasDirectDependencies;
 	then
-		# TODO: don't *completely* redefine the orginal library path?
-		# The default contains useful, and therefore possibly widespread, defaults.
-		# The defaults are also system-dependent.
-		jq -L "${localJqPackageBase}" -f "${PWD}/${packageJqFile}" "$@"
+		# TODO: lookup jq.json's "main" property for the path.
+		local packageJqFile="$defaultPackageJqFile"
+
+		if hasDirectDependencies;
+		then
+				# TODO: don't *completely* redefine the orginal library path?
+			# The default contains useful, and therefore possibly widespread, defaults.
+			# The defaults are also system-dependent.
+			jq -L "${localJqPackageBase}" -f "${PWD}/${packageJqFile}" "$@"
+		else
+			if [[ -s "$packageJqFile" ]];
+			then
+				jq -f "${PWD}/${packageJqFile}" "$@"
+			else
+				jq "$@"
+			fi
+		fi
 	else
-		jq -f "${PWD}/${packageJqFile}" "$@"
+		if hasPackageMainJq;
+		then
+			jq -f "${PWD}/${defaultPackageJqFile}" "$@"
+		else
+			jq "$@"
+		fi
 	fi
 }
 
