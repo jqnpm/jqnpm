@@ -69,14 +69,36 @@ function die {
 
 # Join an array as delimited string.
 # http://stackoverflow.com/a/17841619
-function join { local IFS="$1"; shift; echo "$*"; }
+function join { local IFS="$1"; shift; echo -E "$*"; }
+
+# TODO: re-use these TMP functions across files.
+function createTempFileDirectoryIfNecessary {
+	if [[ ! -d "$internalTmpDir" ]];
+	then
+		local base=$(basename "$BASH_SOURCE")
+
+		internalTmpDir=$(mktemp -d "${TMPDIR:-TMP}${base}.XXXXXX")
+	fi
+}
+
+function rmTempFileDirectory {
+	if [[ ! -z "${internalTmpDir}" && -d "${internalTmpDir}" ]];
+	then
+		rm -rf "${internalTmpDir}"
+	fi
+}
+
+# TODO: is this EXIT trap interfering with shunit2 testing traps?
+trap 'rmTempFileDirectory' EXIT
 
 function getTempFilePath {
-	local base=$(basename "$BASH_SOURCE")
+	createTempFileDirectoryIfNecessary
 
-	# TODO: remove temp file(s).
-	echo "$(mktemp "${TMPDIR:-TMP}/${base}.XXXXXX")"
+	local tmpPath="$(mktemp "${internalTmpDir}/tmp.XXXXXX")"
+
+	echo -nE "$tmpPath"
 }
+# END TMP functions.
 
 
 ### Metadata handling
@@ -164,7 +186,7 @@ function createEmptyJqJsonIfNecessary {
 	if ! hasPackageMetadataFile;
 	then
 		local packageName=$(basename "$PWD")
-		echo "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
+		echo -nE "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
 	fi
 }
 
@@ -172,7 +194,7 @@ function createEmptyMainJqIfNecessary {
 	if ! hasPackageMainJq;
 	then
 		mkdir -p "$(dirname "$defaultPackageJqFile")"
-		echo "# Write your jq code here!" >"$defaultPackageJqFile"
+		echo -E "# Write your jq code here!" >"$defaultPackageJqFile"
 	fi
 }
 
@@ -250,7 +272,7 @@ function fetchSingle {
 	# TODO: use --bare repos, bundles or maybe zip files in cache?
 	# git clone --branch <tag> --single-branch --depth 1 "$remote" "$cache"
 	# TODO: fail gracefully if git fails.
-	debugInPackageIfAvailable 3 $(echo "Cloning '${remote}' to '${cache}'" | replaceHomeWithTilde)
+	debugInPackageIfAvailable 3 $(echo -E "Cloning '${remote}' to '${cache}'" | replaceHomeWithTilde)
 	git clone --single-branch --depth 1 --quiet "$remote" "$cache"
 }
 
