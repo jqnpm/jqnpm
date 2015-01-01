@@ -12,11 +12,13 @@ This is experimental software, so [feedback is most appreciated](https://github.
 
 ## Steps
 
+1. Run `git clean -idX :/` to clean up any generated file. Use with care.
 1. Create a new `git branch` where you add your changes.
 1. Edit `src/jqnpm` with your changes
   - Follow current conventions to increase the chance of your patch being accepted.
 1. Write additional tests in a subfolder to `tests/`.
   - Code with tests have a much, much higher chance of being accepted.
+1. If you have changed code in `tests/*/package-source` subfolders, run `./tests/create-bundles.sh` to regenerate git `.bundle` files for tests.
 1. Run tests with `./tests/all.sh`.
 1. Repeat until your feature is done, well tested and all tests pass.
 1. Create a pull request based on your new branch.

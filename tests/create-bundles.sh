@@ -118,4 +118,6 @@ function createBundles {
 	done 
 }
 
+pushd "${BASH_SOURCE%/*}" >/dev/null
 createBundles
+popd >/dev/null
