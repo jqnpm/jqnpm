@@ -28,7 +28,7 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 ## Get it
 
 - Clone the repository and add `src/` to your `$PATH`.
-- Requirement: [jq](https://stedolan.github.io/jq/) 1.4+ in your `$PATH`. A version with a `import` statement implementation is required; [`stedolan/jq` master branch might have it](https://github.com/stedolan/jq/). Tested with [56ae88d](https://github.com/stedolan/jq/commit/56ae88d9d55582e8d0036601e3186d88861bf105).
+- Requirement: [jq](https://stedolan.github.io/jq/) 1.5rc1+ in your `$PATH`. See the [`stedolan/jq` master branch](https://github.com/stedolan/jq/). Tested with [jq-1.5rc1-1-g157c95b](https://github.com/stedolan/jq/commit/157c95b9889b523a3de7772e85ef9f3f69182c88), which is •not yet fully compatible* with `jqnpm`.
 - Requirement: [bash](https://www.gnu.org/software/bash/) 4+ in your `$PATH`
 - Requirement: [git](http://git-scm.com/)
 
