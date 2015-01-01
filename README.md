@@ -53,7 +53,7 @@ Actions
   initialize                Create default jq.json and src/main.jq files.
   fetch [package]           Preload package cache from remote server.
   install [package]         Install/add jq.json dependencies to the current directory.
-  execute [flags for jq]    Run normal jq with dependencies.
+  execute [flags for jq]    Run normal jq with dependencies. **This is a workaround until plain jq is up to speed.**
 ```
 
 
@@ -65,6 +65,7 @@ jqnpm init                                           # (optional) Create jq.json
 jqnpm install joelpurra/jq-another-utility           # Also creates a minimal jq.json.
 
 # 'jqnpm execute' is a wrapper around jq, which also loads dependencies managed by jqnpm.
+# **'jqnpm execute' is a workaround until plain jq is up to speed.**
 # Use the way you would use jq, including flags:
 # Example A:
 echo '{ "hello": "world" }' | jqnpm execute '.hello'
