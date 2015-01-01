@@ -103,8 +103,8 @@ Shows example dependency `joelpurra/jq-another-utility` with version range `^1.0
 Example usage combining two other packages.
 
 ```jq
-import joelpurra/jq-another-utility::src::main as anotherUtility;
-import anotheruser/jq-url-splitting::src::main as urlSplitting;
+import "joelpurra/jq-another-utility" as anotherUtility;
+import "anotheruser/jq-url-splitting" as urlSplitting;
 
 def prepareAndSplit:
     anotherUtility::doSomething | urlSplitting::split;
