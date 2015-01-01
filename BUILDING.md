@@ -53,6 +53,28 @@ chmod u+x "jq-command-override.sh"
 Now you can run `./tests/all.sh` against `jq` instead of using the *temporary `jq` wrapper* `jqnpm execute` - it is not to be used once `jq` is up to speed.
 
 
+### Custom remote server (or fake directory)
+
+Remotes and cache can be changed for testing by setting some environment variables in your shell.
+
+
+Default values
+
+```bash
+config_default_packagesCache="$HOME/.jq/packages"
+config_default_remoteBase="git://github.com"
+config_default_remoteSuffix=".git"
+```
+
+
+Values are used during most tests.
+
+```bash
+export JQNPM_PACKAGES_CACHE="${BASH_SOURCE%/*}/package-cache"
+export JQNPM_REMOTE_BASE="${BASH_SOURCE%/*}/remote-base"
+export JQNPM_REMOTE_SUFFIX=".bundle"
+```
+
 
 ## Larger `jq.json` example.
 

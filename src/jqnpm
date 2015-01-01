@@ -595,9 +595,9 @@ function initJqnpm {
 	[[ -z $(which git) ]] && die 1 "git is required."
 
 	# TODO: normalize configuration, configuration defaults and internal variable names.
+	config_default_packagesCache="$HOME/.jq/packages"
 	config_default_remoteBase="git://github.com"
 	config_default_remoteSuffix=".git"
-	config_default_packagesCache="$HOME/.jq/packages"
 
 	packageMetadataFilename="jq.json"
 	localJqPackageBase="./.jq/packages"
