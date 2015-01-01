@@ -117,13 +117,75 @@ function hasPackageMetadataFile {
 	return 1;
 }
 
-function hasPackageMainJq {
-	if [[ -s "$defaultPackageJqFile" ]];
+function getPackageMainJqPath {
+	if hasPackageMetadataFile;
+	then
+		local mainPathFromJqJson=$(getPackageMainPath)
+		local mainPath="${mainPathFromJqJson:-$defaultPackageJqFile}"
+
+		echo -nE "$mainPath"
+	else
+		echo -nE "$defaultPackageJqFile"
+	fi
+}
+
+function simplePathIsInsidePackageCheck {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local path="$1"
+
+
+	if [[ "$path" =~ \.\. ]] || [[ "$path" =~ // ]] || [[ "$path" =~ ^/ ]];
+	then
+		return 1;
+	fi
+
+	return 0;
+}
+
+function packageMainJqPathIsValid {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local mainPath="$1"
+
+	if simplePathIsInsidePackageCheck "$mainPath" && [[ "${mainPath:(-3)}" == ".jq" ]];
 	then
 		return 0;
 	fi
 
 	return 1;
+}
+
+function packageMainJqPathExists {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local mainPath="$1"
+
+	if [[ -s "$mainPath" ]];
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
+function hasValidPackageMainJq {
+	local mainPath="$(getPackageMainJqPath)"
+
+	if packageMainJqPathIsValid "$mainPath" && packageMainJqPathExists "$mainPath";
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
+function getValidPackageMainJq {
+	if ! hasValidPackageMainJq;
+	then
+		die 1 "package did not have a valid main .jq file in the package."
+	fi
+
+	local mainPath="$(getPackageMainJqPath)"
+
+	echo "$mainPath"
 }
 
 function requiresJqJson {
@@ -147,7 +209,12 @@ function getDirectDependencyNames {
 
 function getPackageName {
 	# TODO: encode output with '@sh'?
-	currentMetadata | jq --join-output '.name'
+	currentMetadata | jq --join-output '.name // ""'
+}
+
+function getPackageMainPath {
+	# TODO: encode output with '@sh'?
+	currentMetadata | jq --join-output '.main // ""'
 }
 
 function getDirectDependencyVersion {
@@ -198,7 +265,7 @@ function createEmptyJqJsonIfNecessary {
 }
 
 function createEmptyMainJqIfNecessary {
-	if ! hasPackageMainJq;
+	if ! hasValidPackageMainJq;
 	then
 		mkdir -p "$(dirname "$defaultPackageJqFile")"
 		echo -E "# Write your jq code here!" >"$defaultPackageJqFile"
@@ -457,27 +524,23 @@ function execute {
 
 	if hasPackageMetadataFile && hasDirectDependencies;
 	then
-		# TODO: lookup jq.json's "main" property for the path.
-		local packageJqFile="$defaultPackageJqFile"
-
-		if hasDirectDependencies;
+		if hasValidPackageMainJq;
 		then
+			local mainPath=$(getValidPackageMainJq)
+
 			# TODO: don't *completely* redefine the orginal library path?
 			# The default contains useful, and therefore possibly widespread, defaults.
 			# The defaults are also system-dependent.
-			jq -L "${localJqPackageBase}" -f "${PWD}/${packageJqFile}" "$@"
+			jq -L "$localJqPackageBase" -f "${PWD}/${mainPath}" "$@"
 		else
-			if [[ -s "$packageJqFile" ]];
-			then
-				jq -f "${PWD}/${packageJqFile}" "$@"
-			else
-				jq "$@"
-			fi
+			jq -L "$localJqPackageBase" "$@"
 		fi
 	else
-		if hasPackageMainJq;
+		if hasValidPackageMainJq;
 		then
-			jq -f "${PWD}/${defaultPackageJqFile}" "$@"
+			local mainPath=$(getValidPackageMainJq)
+
+			jq -f "${PWD}/${mainPath}" "$@"
 		else
 			jq "$@"
 		fi

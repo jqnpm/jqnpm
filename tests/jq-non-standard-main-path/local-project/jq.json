@@ -1,0 +1,6 @@
+{
+    "name": "local-project",
+    "version": "0.0.1",
+    "main": "other/location/the-code.jq",
+    "dependencies": {}
+}

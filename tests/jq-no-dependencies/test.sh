@@ -7,7 +7,7 @@ function testJqExecutionWithNullInput () {
 	assertTrue "jq.json exists" "[[ -s 'local-project/jq.json' ]]"
 
 	pushd "local-project" >/dev/null
-	result=$("$jqCommandUnderTest" --null-input)
+	local result=$("$jqCommandUnderTest" --null-input)
 	popd >/dev/null
 
 	assertEquals "Result" '"test output"' "$result"
