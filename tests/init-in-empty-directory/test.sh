@@ -4,7 +4,7 @@ source "${BASH_SOURCE%/*}/../prepare.sh"
 
 
 function cleanup {
-	git clean -fdX . >/dev/null
+	git clean -fdX "package-cache/" "local-project/" >/dev/null
 }
 
 function oneTimeSetUp () {

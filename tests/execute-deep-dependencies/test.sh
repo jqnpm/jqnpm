@@ -15,7 +15,7 @@ function oneTimeSetUp () {
 function cleanup {
 	rm -rf "package-cache/anotheruser/"
 	rm -rf "package-cache/someuser/"
-	git clean -fdX . >/dev/null
+	git clean -fdX "package-cache/" "local-project/" >/dev/null
 }
 
 function tearDown () {
