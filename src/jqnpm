@@ -531,8 +531,13 @@ function execute {
 			# TODO: don't *completely* redefine the orginal library path?
 			# The default contains useful, and therefore possibly widespread, defaults.
 			# The defaults are also system-dependent.
+
+			# Take care when editing the follow line, so debugging information and actual command stay in sync.
+			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" -f "${PWD}/${mainPath}" "$@"
 			jq -L "$localJqPackageBase" -f "${PWD}/${mainPath}" "$@"
 		else
+			# Take care when editing the follow line, so debugging information and actual command stay in sync.
+			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" "$@"
 			jq -L "$localJqPackageBase" "$@"
 		fi
 	else
@@ -540,8 +545,12 @@ function execute {
 		then
 			local mainPath=$(getValidPackageMainJq)
 
+			# Take care when editing the follow line, so debugging information and actual command stay in sync.
+			debugInPackageIfAvailable 5 "(executing jq)" jq -f "${PWD}/${mainPath}" "$@"
 			jq -f "${PWD}/${mainPath}" "$@"
 		else
+			# Take care when editing the follow line, so debugging information and actual command stay in sync.
+			debugInPackageIfAvailable 5 "(executing jq)" jq "$@"
 			jq "$@"
 		fi
 	fi
