@@ -24,7 +24,23 @@ This is experimental software, so [feedback is most appreciated](https://github.
 1. Create a pull request based on your new branch.
 
 
-## Override for the *temporary `jq` wrapper* `jqnpm execute`
+## Debugging
+
+
+### `export JQNPM_DEBUG_LEVEL=5`
+
+Set the `JQNPM_DEBUG_LEVEL` in your shell to get some debugging output.
+
+- `0` fatal
+- `1` errors
+- `2` warnings
+- `3` information
+- `4` debug
+- `5` verbose
+
+
+
+### Override for the *temporary `jq` wrapper* `jqnpm execute`
 
 If you are runnings tests agains plain `jq`, it used to be a hassle to replace `jqnpm execute`. Now it's easy.
 
