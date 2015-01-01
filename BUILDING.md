@@ -24,8 +24,24 @@ This is experimental software, so [feedback is most appreciated](https://github.
 1. Create a pull request based on your new branch.
 
 
+## Override for the *temporary `jq` wrapper* `jqnpm execute`
+
+If you are runnings tests agains plain `jq`, it used to be a hassle to replace `jqnpm execute`. Now it's easy.
+
+```bash
+cd tests/
+echo 'jq "$@"' >"jq-command-override.sh"
+chmod u+x "jq-command-override.sh"
+```
+
+Now you can run `./tests/all.sh` against `jq` instead of using the *temporary `jq` wrapper* `jqnpm execute` - it is not to be used once `jq` is up to speed.
+
+
 
 ## Larger `jq.json` example.
+
+This example shows the work-in-progress goal for `jq.json` metadata. It *can* be used in a centralized service, although none is devloped yet.
+
 
 ```json
 {

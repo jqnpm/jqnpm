@@ -15,11 +15,11 @@ function tearDown () {
 	cleanup
 }
 
-function testExecuteWithoutJqJsonNorMainJq () {
+function testJqExecutionWithoutJqJsonNorMainJq () {
 	assertFalse "jq.json doesn't exist" "[[ -s 'local-project/jq.json' ]]"
 
 	pushd "local-project" >/dev/null
-	local result=$(echo '{ "hello": "world" }' | jqnpm execute)
+	local result=$(echo '{ "hello": "world" }' | "$jqCommandUnderTest")
 	popd >/dev/null
 
 	assertFalse "jq.json doesn't exist" "[[ -s 'local-project/jq.json' ]]"

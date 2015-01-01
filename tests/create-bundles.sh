@@ -14,7 +14,7 @@ function resolvePath {
 	then
 		resolveDirectory "$1"
 	else
-		resolveDirectory "$(dirname "$1")/$(basename -a "$1")"
+		echo "$(resolveDirectory "$(dirname "$1")")/$(basename -a "$1")"
 	fi
 }
 

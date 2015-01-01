@@ -10,7 +10,7 @@ function resolvePath {
 	then
 		resolveDirectory "$1"
 	else
-		resolveDirectory "$(dirname "$1")/$(basename -a "$1")"
+		echo "$(resolveDirectory "$(dirname "$1")")/$(basename -a "$1")"
 	fi
 }
 
@@ -22,4 +22,17 @@ function addJqnpmDirectoryToPath {
 	export PATH="$jqnpmDirectory:$PATH"
 }
 
+function selectJqCommandUnderTest {
+	# Allow overriding the `jq` command in tests.
+	unset jqCommandUnderTest
+
+	if [[ -s "${BASH_SOURCE%/*}/jq-command-override.sh" ]];
+	then
+		jqCommandUnderTest=$(resolvePath "${BASH_SOURCE%/*}/jq-command-override.sh")
+	else
+		jqCommandUnderTest=$(resolvePath "${BASH_SOURCE%/*}/jq-command.sh")
+	fi
+}
+
 addJqnpmDirectoryToPath
+selectJqCommandUnderTest

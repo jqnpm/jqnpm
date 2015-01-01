@@ -22,12 +22,12 @@ function tearDown () {
 	cleanup
 }
 
-function testExecute () {
+function testJqExecution () {
 	assertTrue "jq.json exists" "[[ -s 'local-project/jq.json' ]]"
 
 	pushd "local-project" >/dev/null
 	jqnpm install
-	local result=$(jqnpm execute --null-input --raw-output)
+	local result=$("$jqCommandUnderTest" --null-input --raw-output)
 	popd >/dev/null
 
 	assertTrue "Package is installed" "[[ -d 'local-project/.jq/packages/anotheruser/pack1/' ]]"

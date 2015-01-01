@@ -3,21 +3,21 @@
 source "${BASH_SOURCE%/*}/../prepare.sh"
 
 
-function testExecuteWithNullInput () {
+function testJqExecutionWithNullInput () {
 	assertTrue "jq.json exists" "[[ -s 'local-project/jq.json' ]]"
 
 	pushd "local-project" >/dev/null
-	result=$(jqnpm execute --null-input)
+	result=$("$jqCommandUnderTest" --null-input)
 	popd >/dev/null
 
 	assertEquals "Result" '"test output"' "$result"
 }
 
-function testExecuteWithNullInputAndRawOutput () {
+function testJqExecutionWithNullInputAndRawOutput () {
 	assertTrue "jq.json exists" "[[ -s 'local-project/jq.json' ]]"
 
 	pushd "local-project" >/dev/null
-	local result=$(jqnpm execute --null-input --raw-output)
+	local result=$("$jqCommandUnderTest" --null-input --raw-output)
 	popd >/dev/null
 
 	assertEquals "Result" 'test output' "$result"

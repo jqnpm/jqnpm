@@ -437,6 +437,9 @@ function initialize {
 	createEmptyMainJqIfNecessary
 }
 
+# TODO: remove execute capabilities once jq is up to speed with the package import algorithm.
+# One should not have to use `jqnpm execute` when `jq` is enough.
+# https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md#requirements-for-the-jq-binary
 function execute {
 	if hasPackageMetadataFile && isDebugAtLevel 4;
 	then
