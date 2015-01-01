@@ -5,7 +5,8 @@ set -e
 ### Error handling
 
 function isDebugAtLevel {
-	local -i messageLevel="${1:-0}"
+	(( "$#" < 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local -i messageLevel="$1"
 	shift
 
 	# TODO: output debug message level.
@@ -25,7 +26,8 @@ function isDebugAtLevel {
 }
 
 function debug {
-	local -i messageLevel="${1:-0}"
+	(( "$#" < 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local -i messageLevel="$1"
 	shift
 
 	isDebugAtLevel "$messageLevel" && echo -E "jqnpm:" "$@" >&2
@@ -34,7 +36,8 @@ function debug {
 }
 
 function debugInPackageIfAvailable {
-	local -i messageLevel="${1:-0}"
+	(( "$#" < 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local -i messageLevel="$1"
 	shift
 
 	if hasPackageMetadataFile;
@@ -48,7 +51,8 @@ function debugInPackageIfAvailable {
 }
 
 function debugInPackage {
-	local -i messageLevel="${1:-0}"
+	(( "$#" < 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local -i messageLevel="$1"
 	shift
 
 	debug "$messageLevel" "[$(getPackageName)]" "$@"
@@ -57,7 +61,8 @@ function debugInPackage {
 }
 
 function die {
-	local -i exitcode="${1:-1}"
+	(( "$#" < 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local -i exitcode="$1"
 	shift
 
 	debug 0 "$@"
@@ -146,7 +151,9 @@ function getPackageName {
 }
 
 function getDirectDependencyVersion {
+	(( "$#" < 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	local dependencyName="$1"
+	shift
 
 	# TODO: encode output with '@sh'?
 	currentMetadata | jq --join-output --arg dependencyName "$dependencyName" '.dependencies[$dependencyName]'
@@ -209,8 +216,11 @@ end
 EOF
 
 function addOrUpdateDependencyAndRangePairInJqJson {
+	(( "$#" < 2 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	local dependencyName="$1"
-	local dependencySemverRange="$2"
+	shift
+	local dependencySemverRange="$1"
+	shift
 	local tmpFilePath=$(getTempFilePath)
 
 	createEmptyJqJsonIfNecessary
@@ -221,8 +231,10 @@ function addOrUpdateDependencyAndRangePairInJqJson {
 }
 
 function addOrUpdateDependencyAndRangeInJqJson {
+	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
+
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
 
@@ -235,6 +247,7 @@ function addOrUpdateDependencyAndRangeInJqJson {
 #### Actions
 
 function help {
+	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	echo "jqnpm: npm style package manager for jq"
 	echo "https://github.com/joelpurra/jqnpm"
 	echo
@@ -249,8 +262,10 @@ function help {
 }
 
 function fetchSingle {
+	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
+
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
 
@@ -277,12 +292,14 @@ function fetchSingle {
 }
 
 function fetchSingleManually {
+	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	debugInPackageIfAvailable 4 "(fetching manually) ${1}"
 
 	fetchSingle "$1"
 }
 
 function fetchFromJqJson {
+	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	# TODO: enable arguments controlling what is being fetched.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -318,6 +335,7 @@ function fetchFromJqJson {
 }
 
 function fetch {
+	(( "$#" > 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	if [[ -z "$1" ]];
 	then
 		fetchFromJqJson
@@ -327,14 +345,16 @@ function fetch {
 }
 
 function installSingle {
-	# Make sure the remote repository is in the local cache.
-	# TODO: implement --no-fetch.
-	"$BASH_SOURCE" fetch "$1"
-
+	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
+
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
+
+	# Make sure the remote repository is in the local cache.
+	# TODO: implement --no-fetch.
+	"$BASH_SOURCE" fetch "${dependencyName}@${dependencySemverRange}"
 
 	debugInPackageIfAvailable 4 "(installing) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
@@ -351,6 +371,7 @@ function installSingle {
 }
 
 function installSingleManually {
+	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	debugInPackageIfAvailable 4 "(installing manually) ${1}"
 
 	installSingle "$1"
@@ -360,6 +381,7 @@ function installSingleManually {
 }
 
 function installFromJqJson {
+	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	# TODO: enable arguments controlling what is being installed.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -400,6 +422,7 @@ function installFromJqJson {
 }
 
 function install {
+	(( "$#" > 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	if [[ -z "$1" ]];
 	then
 		installFromJqJson
@@ -409,6 +432,7 @@ function install {
 }
 
 function initialize {
+	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
 	createEmptyJqJsonIfNecessary
 	createEmptyMainJqIfNecessary
 }
@@ -435,7 +459,7 @@ function execute {
 
 		if hasDirectDependencies;
 		then
-				# TODO: don't *completely* redefine the orginal library path?
+			# TODO: don't *completely* redefine the orginal library path?
 			# The default contains useful, and therefore possibly widespread, defaults.
 			# The defaults are also system-dependent.
 			jq -L "${localJqPackageBase}" -f "${PWD}/${packageJqFile}" "$@"
@@ -463,7 +487,7 @@ function execute {
 function main {
 	# TODO: implement other actions.
 	local action="$1"
-	shift
+	(( "$#" > 0 )) && shift
 
 	# TODO: use a system like "exec jqnpm-$action.sh".
 	case "$action" in
