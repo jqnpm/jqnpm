@@ -70,7 +70,7 @@ function hasValidPackageMainJq {
 function getValidPackageMainJq {
 	if ! hasValidPackageMainJq;
 	then
-		die 1 "package did not have a valid main .jq file in the package."
+		die 200 "package did not have a valid main .jq file in the package."
 	fi
 
 	local mainPath="$(getPackageMainJqPath)"
@@ -108,7 +108,7 @@ function getPackageMainPath {
 }
 
 function getDirectDependencyVersion {
-	(( "$#" < 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" < 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	local dependencyName="$1"
 	shift
 
@@ -173,7 +173,7 @@ end
 EOF
 
 function addOrUpdateDependencyAndRangePairInJqJson {
-	(( "$#" < 2 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" < 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	local dependencyName="$1"
 	shift
 	local dependencySemverRange="$1"
@@ -188,7 +188,7 @@ function addOrUpdateDependencyAndRangePairInJqJson {
 }
 
 function addOrUpdateDependencyAndRangeInJqJson {
-	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
 

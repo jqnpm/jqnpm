@@ -1,5 +1,5 @@
 function help {
-	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 0 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	echo "jqnpm: npm style package manager for jq"
 	echo "https://github.com/joelpurra/jqnpm"
 	echo

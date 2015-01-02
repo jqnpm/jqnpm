@@ -1,5 +1,5 @@
 function installSingle {
-	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
 
@@ -25,7 +25,7 @@ function installSingle {
 }
 
 function installSingleManually {
-	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	debugInPackageIfAvailable 4 "(installing manually) ${1}"
 
 	installSingle "$1"
@@ -35,7 +35,7 @@ function installSingleManually {
 }
 
 function installFromJqJson {
-	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 0 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	# TODO: enable arguments controlling what is being installed.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -76,7 +76,7 @@ function installFromJqJson {
 }
 
 function install {
-	(( "$#" > 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" > 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	if [[ -z "$1" ]];
 	then
 		installFromJqJson

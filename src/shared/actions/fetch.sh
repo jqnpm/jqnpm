@@ -1,5 +1,5 @@
 function fetchSingle {
-	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
 
@@ -29,14 +29,14 @@ function fetchSingle {
 }
 
 function fetchSingleManually {
-	(( "$#" != 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	debugInPackageIfAvailable 4 "(fetching manually) ${1}"
 
 	fetchSingle "$1"
 }
 
 function fetchFromJqJson {
-	(( "$#" != 0 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 0 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	# TODO: enable arguments controlling what is being fetched.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
@@ -72,7 +72,7 @@ function fetchFromJqJson {
 }
 
 function fetch {
-	(( "$#" > 1 )) && die 1 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" > 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	if [[ -z "$1" ]];
 	then
 		fetchFromJqJson
