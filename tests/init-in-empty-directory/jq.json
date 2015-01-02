@@ -1,0 +1,10 @@
+{
+  "name": "init-in-empty-directory",
+  "version": "0.1.0",
+  "main": "./src/main.jq",
+  "dependencies": {},
+  "engines": {
+    "jq": "^1.5.0",
+    "jqnpm": "^1.0.0"
+  }
+}

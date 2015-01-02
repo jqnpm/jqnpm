@@ -36,7 +36,7 @@ function debugInPackageIfAvailable {
 
 	if hasPackageMetadataFile;
 	then
-		debugInPackage "$messageLevel" "[$(getPackageName)]" "$@"
+		debugInPackage "$messageLevel" "[$(getValidPackageNameOrEmptyString)]" "$@"
 	else
 		debug "$messageLevel" "$@"
 	fi
@@ -49,7 +49,7 @@ function debugInPackage {
 	local -i messageLevel="$1"
 	shift
 
-	debug "$messageLevel" "[$(getPackageName)]" "$@"
+	debug "$messageLevel" "[$(getValidPackageNameOrEmptyString)]" "$@"
 
 	return 0;
 }

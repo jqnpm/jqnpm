@@ -92,6 +92,43 @@ function currentMetadata {
 	cat "$packageMetadataFilename"
 }
 
+function packageNameStartsWithLowercaseJqDash {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local packageName="$1"
+
+	if [[ "$packageName" =~ ^jq- ]];
+	then
+		return 0
+	fi
+
+	return 1;
+}
+
+minimumRecommendedPackageNameLength=3
+function packageNameMeetsLengthRequirement {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local packageName="$1"
+	if (( "${#packageName}" >= minimumRecommendedPackageNameLength ));
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
+function isPackageNameValid {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	local packageName="$1"
+
+	# Only allows lowercase.
+	if ! containsUppercaseAscii "$packageName" && [[ "$packageName" =~ ^[a-z][a-z0-9-]+$ ]] && ! [[ "$packageName" =~ -- ]];
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
 function getDirectDependencyNames {
 	# TODO: encode output with '@sh'?
 	currentMetadata | jq --join-output 'def delim: [ 00 ] | implode; (if .dependencies then (.dependencies | keys | (join(delim) + delim)) else empty end)'
@@ -99,7 +136,42 @@ function getDirectDependencyNames {
 
 function getPackageName {
 	# TODO: encode output with '@sh'?
-	currentMetadata | jq --join-output '.name // ""'
+	currentMetadata | jq --join-output '.name'
+}
+
+function hasValidPackageName {
+	local packageName=$(getPackageName)
+
+	if isPackageNameValid "$packageName";
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
+function getValidPackageName {
+	# TODO: encode output with '@sh'?
+	local packageName=$(getPackageName)
+
+	if ! isPackageNameValid "$packageName";
+	then
+		die 200 "package name was not valid."
+	fi
+
+	echo -nE "$packageName"
+}
+
+function getValidPackageNameOrEmptyString {
+	# TODO: encode output with '@sh'?
+	local packageName=$(getPackageName)
+
+	if ! isPackageNameValid "$packageName";
+	then
+		echo -n ""
+	fi
+
+	echo -nE "$packageName"
 }
 
 function getPackageMainPath {
@@ -146,15 +218,39 @@ read -d '' defaultMinmalJqJson <<-'EOF' || true
 }
 EOF
 
-function createEmptyJqJsonIfNecessary {
+function createMinimalJqJsonWithPackageName {
+	local packageName="$1"
+
+	if ! isPackageNameValid "$packageName";
+	then
+		die 200 "could not create minimal jq.json file due to malformed package name. The package name is based on the name of the current folder, by default. Because packages are (usually) made public, naming is important. Start the folder name with 'jq-' (recommended) and use only lowercase a-z, 0-9 and dashes: 'jq-good-name'. The 'jq-' part will be stripped in the package name, as it is already known to 'jq.json' that it is a jq package."
+	fi
+
+	if packageNameStartsWithLowercaseJqDash "$packageName";
+	then
+		packageName="${packageName:3}"
+		debugInPackageIfAvailable 3 "folder (package) name prefix 'jq-' removed for the package name: '${packageName}'"
+	else
+		debugInPackageIfAvailable 2 "folder (package) name does not start with 'jq-': '${packageName}'"
+	fi
+
+	[[ -z "$packageName" ]] && die 200 "could not create minimal jq.json file due to an empty package name."
+
+	packageNameMeetsLengthRequirement "$packageName" || debugInPackageIfAvailable 2 "package name length is shorter than ${minimumRecommendedPackageNameLength}: '${packageName}'"
+
+	echo -nE "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
+}
+
+function createMinimalJqJsonIfNecessary {
 	if ! hasPackageMetadataFile;
 	then
 		local packageName=$(basename "$PWD")
-		echo -nE "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
+
+		createMinimalJqJsonWithPackageName "$packageName"
 	fi
 }
 
-function createEmptyMainJqIfNecessary {
+function createMinmalMainJqIfNecessary {
 	if ! hasValidPackageMainJq;
 	then
 		mkdir -p "$(dirname "$defaultPackageJqFile")"
@@ -180,7 +276,7 @@ function addOrUpdateDependencyAndRangePairInJqJson {
 	shift
 	local tmpFilePath=$(getTempFilePath)
 
-	createEmptyJqJsonIfNecessary
+	createMinimalJqJsonIfNecessary
 
 	<"$packageMetadataFilename" jq --arg depName "$dependencyName" --arg depSemverRange "$dependencySemverRange" "$addOrUpdateDependencyInJqJson" >"$tmpFilePath"
 	cp "$tmpFilePath" "$packageMetadataFilename"
