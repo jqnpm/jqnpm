@@ -8,7 +8,7 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 - Uses only namespaced packages, for example `joelpurra/jq-another-utility`.
 - Uses github.com by default; the example would be cloned from `github.com/joelpurra/jq-another-utility`.
 - Uses strict [semantic versioning](http://semver.org/) tags.
-- Run `jqnpm init` to create `src/main.jq` and `jq.json` with your package metadata, including:
+- Run `jqnpm init` to create `jq/main.jq` and `jq.json` with your package metadata, including:
   - Package name (*defaults to the folder name*).
   - Version.
   - Dependencies and their versions.
@@ -50,7 +50,7 @@ jqnpm <action> [options]
 
 Actions
   help                      Show this help.
-  initialize                Create default jq.json and src/main.jq files.
+  initialize                Create default jq.json and jq/main.jq files.
   fetch [package]           Preload package cache from remote server.
   install [package]         Install/add jq.json dependencies to the current directory.
   execute [flags for jq]    Run normal jq with dependencies. **This is a workaround until plain jq is up to speed.**
@@ -61,7 +61,7 @@ Actions
 
 ```shell
 cd my-project/                                    # Your project.
-jqnpm init                                           # (optional) Create jq.json and src/main.jq.
+jqnpm init                                           # (optional) Create jq.json and jq/main.jq.
 jqnpm install joelpurra/jq-another-utility           # Also creates a minimal jq.json.
 
 # 'jqnpm execute' is a wrapper around jq, which also loads dependencies managed by jqnpm.
@@ -99,7 +99,7 @@ Shows example dependency `joelpurra/jq-another-utility` with version range `^1.0
 }
 ```
 
-### `src/main.jq`
+### `jq/main.jq`
 
 Example usage combining two other packages.
 

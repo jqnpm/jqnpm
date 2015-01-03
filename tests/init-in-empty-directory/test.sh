@@ -22,7 +22,7 @@ function testInitGood () {
 	jqnpm init
 	popd >/dev/null
 
-	assertTrue "src/main.jq is generated" "[[ -s 'jq-good-local-project/src/main.jq' ]]"
+	assertTrue "jq/main.jq is generated" "[[ -s 'jq-good-local-project/jq/main.jq' ]]"
 	assertTrue "jq.json is generated" "[[ -s 'jq-good-local-project/jq.json' ]]"
 	assertTrue "jq.json empty dependencies" "[[ $(<"jq-good-local-project/jq.json" jq '.dependencies | length') == '0' ]]"
 	assertTrue "jq.json has package name same as this folder minus jq- prefix" "[[ $(<"jq-good-local-project/jq.json" jq '.name') == '"good-local-project"' ]]"
@@ -48,7 +48,7 @@ function singleJqInitWithBadFolderName () {
 	assertFalse "jq.json doesn't exist" "[[ -s '${dirname}/jq.json' ]]"
 
 	pushd "$dirname" >/dev/null
-	jqnpm init #&>/dev/null
+	jqnpm init &>/dev/null
 	local result="$?"
 	popd >/dev/null
 

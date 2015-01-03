@@ -209,7 +209,7 @@ read -d '' defaultMinmalJqJson <<-'EOF' || true
 {
     "name": "TO BE REPLACED",
     "version": "0.1.0",
-    "main": "./src/main.jq",
+    "main": "./jq/main.jq",
     "dependencies": {},
     "engines": {
         "jq": "^1.5.0",

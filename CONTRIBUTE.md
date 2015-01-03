@@ -10,10 +10,10 @@ This is experimental software, so feedback is most appreciated!
 
 ## Known issues
 
-- The package names are currently duplicated between `./jq.json` and `./src/main.jq`. This is due to two things.
+- The package names are currently duplicated between `./jq.json` and `./jq/main.jq`. This is due to two things.
   - `jq` is unaware of each dependency's subdirectory.
-  - `jqnpm` uses only `./src/main.jq` at the moment. The `main` responsibility might end up in `jq` instead.
-- Packages are not recursively resolved during execution. This is due to relative module paths starting with `./` only being resolved against the *initial* `src/main.jq`, not subsequently called dependencies.
+  - `jqnpm` uses only `./jq/main.jq` at the moment. The `main` responsibility might end up in `jq` instead.
+- Packages are not recursively resolved during execution. This is due to relative module paths starting with `./` only being resolved against the *initial* `jq/main.jq`, not subsequently called dependencies.
 
 
 
@@ -64,7 +64,7 @@ In order to understand the direction of the development, you could spend an hour
   - No other configuration, such as versions, goes in the `import` statement.
   - The `<package>` is defined as (or at least parsed as) a string.
 - The package root is defined as the current/first parent directory with a `.jq/` subdirectory. Only one is allowed per package.
-- Implement a simple per-package `./jq.json` lookup for the `"main": "./src/completely-separate-from-module-name.jq"` property, or fall back to `./src/main.jq`.
+- Implement a simple per-package `./jq.json` lookup for the `"main": "./src/completely-separate-from-module-name.jq"` property, or fall back to `./jq/main.jq`.
 
 
 #### Example [`import` resolving algorithm](http://nodejs.org/api/modules.html#modules_all_together)
@@ -77,7 +77,7 @@ In order to understand the direction of the development, you could spend an hour
     - A directory containing:
       - A `jq.json` file.
         - With a `main` property path.
-      - A subpath `src/main.jq`.
+      - A subpath `jq/main.jq`.
       - A subpath `src/main.json`.
 - Other strings are treated as package names.
   - Packages in the package root's `./.jq/packages/` subdirectory.
@@ -104,7 +104,7 @@ In order to understand the direction of the development, you could spend an hour
   - Negative:
     - Dependencies would no longer be fully private to each package in a private `./jq/packages` directory.
     - Requires version names in the directory structure, which would require changes to the jq core.
-- Using a subdirectory for the main jq file, `./src/main.jq`, can be discussed. At least it separates code files from the ordinary readme/license/metadata file clutter.
+- Using a subdirectory for the main jq file, `./jq/main.jq`, can be discussed. At least it separates code files from the ordinary readme/license/metadata file clutter.
 
 
 
