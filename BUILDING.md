@@ -83,7 +83,7 @@ This example shows the work-in-progress goal for `jq.json` metadata. It *can* be
 
 ```json
 {
-    "name": "jq-one-single-utility",
+    "name": "one-single-utility",
     "version": "0.1.0",
     "description": "My awesome jq utility",
     "homepage": "https://github.com/joelpurra/jq-one-single-utility",
@@ -92,7 +92,7 @@ This example shows the work-in-progress goal for `jq.json` metadata. It *can* be
         "name": "Joel Purra",
         "url": "http://joelpurra.com/"
     },
-    "main": "./src/jq-one-single-utility.jq",
+    "main": "./jq/one-single-utility.jq",
     "repository": {
         "type": "git",
         "url": "git://github.com/joelpurra/jq-one-single-utility.git"

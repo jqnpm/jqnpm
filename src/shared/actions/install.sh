@@ -36,13 +36,11 @@ function installSingleManually {
 
 function installFromJqJson {
 	(( "$#" != 0 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	# TODO: enable arguments controlling what is being installed.
-	# For now, assume jq.json is being used, or die.
 	requiresJqJson
 
 	# Reads jq.json, puts files in ./jq/packages/
 	# ./jq/packages/$dependencyName/
-	# ./jq/packages/$dependencyName/src/whatever/
+	# ./jq/packages/$dependencyName/jq/main.jq (and any other files in the package)
 	# Then reads ./jq/packages/$dependencyName/jq.json, and installs $subdependencies.
 	# ./jq/packages/$dependencyName/.jq/packages/$subdependency/
 	# This continues recursively.	

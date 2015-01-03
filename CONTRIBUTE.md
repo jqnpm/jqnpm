@@ -64,7 +64,7 @@ In order to understand the direction of the development, you could spend an hour
   - No other configuration, such as versions, goes in the `import` statement.
   - The `<package>` is defined as (or at least parsed as) a string.
 - The package root is defined as the current/first parent directory with a `.jq/` subdirectory. Only one is allowed per package.
-- Implement a simple per-package `./jq.json` lookup for the `"main": "./src/completely-separate-from-module-name.jq"` property, or fall back to `./jq/main.jq`.
+- Implement a simple per-package `./jq.json` lookup for the `"main": "./some-path/completely-separate-from-module-name.jq"` property, or fall back to `./jq/main.jq`.
 
 
 #### Example [`import` resolving algorithm](http://nodejs.org/api/modules.html#modules_all_together)
@@ -78,7 +78,7 @@ In order to understand the direction of the development, you could spend an hour
       - A `jq.json` file.
         - With a `main` property path.
       - A subpath `jq/main.jq`.
-      - A subpath `src/main.json`.
+      - A subpath `data/main.json`.
 - Other strings are treated as package names.
   - Packages in the package root's `./.jq/packages/` subdirectory.
   - (From [other documentation](https://github.com/stedolan/jq/blob/56ae88d9d55582e8d0036601e3186d88861bf105/docs/content/3.manual/manual.yml)) The default search path is the search path given to the `-L` command-line option, else the "$JQ_LIBRARY_PATH", if set in the environment, else `["~/.jq", "$ORIGIN/../lib/jq"]` (on Unix) or `["~/.jq", "$ORIGIN/lib"]` (on Windows).

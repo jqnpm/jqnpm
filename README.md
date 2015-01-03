@@ -86,9 +86,9 @@ Shows example dependency `joelpurra/jq-another-utility` with version range `^1.0
 
 ```json
 {
-    "name": "jq-one-single-utility",
+    "name": "one-single-utility",
     "version": "0.1.0",
-    "main": "./src/jq-one-single-utility.jq",
+    "main": "./jq/main.jq",
     "dependencies": {
         "joelpurra/jq-another-utility": "^1.0.0"
     },
