@@ -1,0 +1,8 @@
+{
+    "name": "local-project",
+    "version": "0.0.1",
+    "main": "./one/two/deep.jq",
+    "dependencies": {
+        "anotheruser/pack1": "^1.0.0"
+    }
+}
