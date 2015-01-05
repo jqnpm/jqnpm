@@ -4,5 +4,8 @@ https://commons.wikimedia.org/wiki/File:Penrose-dreieck.svg
 Created by Tobias R. (Metoc)
 https://commons.wikimedia.org/wiki/User:Metoc
 
+Modified by Joel Purra (as penrose-triangle.svg)
+http://joelpurra.com/
+
 Release under the Creative Commons Attribution-ShareAlike 2.5 Generic (CC BY-SA 2.5) license.
 https://creativecommons.org/licenses/by-sa/2.5/deed.en
