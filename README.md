@@ -119,6 +119,36 @@ def prepareAndSplit:
 }
 ```
 
+## Creating a package
+
+It's easy to create and publish a package of your own. Share your code!
+
+
+### Guidelines
+
+- The smaller package scope the better - it improves reusability through modularity.
+- One piece of functionality per package - *each package does only one thing, but does it well*.
+- The [new github repository](https://github.com/new) name should start with `jq-`, be all lowercase and words are separated by dashes: `jq-good-tool`. The `jq-` prefix is to make it easier for others to see which of your repositories are jq packages.
+- The jq package name is written in `jq.json`. It is all lowercase and words are separated by dashes: `good-tool`. Note that there is no `jq-` prefix, as `jq.json` already knows it's package for jq.
+- Author information, software license and project links are written in `jq.json` - see the [larger jq.json example](https://github.com/joelpurra/jqnpm/blob/master/BUILDING.md#larger-jqjson-example).
+
+
+### Steps
+
+
+1. Create a [new github repository](https://github.com/new):
+  - Choose a name starting with `jq-`, similar to `jq-good-tool`.
+  - Choose the MIT license if you don't have any other preference.
+1. In the repository on your computer, create:
+  - `jq.json` by [filling in the template](https://github.com/joelpurra/jqnpm/blob/master/BUILDING.md#larger-jqjson-example).
+  - `.gitignore` and add the line `.jq/` to it.
+  - The folder `jq/` with the file `jq/main.jq` and write your jq script.
+1. Push the code to github and tell the world about it!
+
+
+As packages are stored on [github.com](https://github.com/) (by default), an account there is required for `jqnpm`. Because github allows private repositories, you can use `jqnpm` for private packages; this has not been tested yet.
+
+
 
 ---
 
@@ -126,7 +156,7 @@ def prepareAndSplit:
 Copyright (c) 2014, Joel Purra <http://joelpurra.com/>
 All rights reserved.
 
-When using jqnpm, comply to at least one of the three available licenses: BSD, MIT, GPL.
+When using **jqnpm**, comply to at least one of the three available licenses: BSD, MIT, GPL.
 Please see the LICENSE file for details.
 
 

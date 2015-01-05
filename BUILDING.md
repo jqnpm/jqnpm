@@ -80,25 +80,32 @@ export JQNPM_REMOTE_SUFFIX=".bundle"
 
 This example shows the work-in-progress goal for `jq.json` metadata. It *can* be used in a centralized service, although none is devloped yet.
 
+Search/replace these instances in the template below with your own values. You also want to update the list of dependencies - or just remove them to start with.
+
+- `<PACKAGE NAME>`: `good-tool` (`jq-` is included in the template, where necessary.)
+- `<GITHUB USERNAME>`: `joelpurra`
+- `<YOUR NAME>`: `Joel Purra`
+- `<ONE SENTENCE DESCRIPTION>`: `My tool solves the age-old problem of XYZ`
+
 
 ```json
 {
-    "name": "one-single-utility",
+    "name": "<PACKAGE NAME>",
     "version": "0.1.0",
-    "description": "My awesome jq utility",
-    "homepage": "https://github.com/joelpurra/jq-one-single-utility",
-    "bugs": "https://github.com/joelpurra/jq-one-single-utility/issues",
+    "description": "<ONE SENTENCE DESCRIPTION>",
+    "homepage": "https://github.com/<GITHUB USERNAME>/jq-<PACKAGE NAME>",
+    "bugs": "https://github.com/<GITHUB USERNAME>/jq-<PACKAGE NAME>/issues",
     "author": {
-        "name": "Joel Purra",
-        "url": "http://joelpurra.com/"
+        "name": "<YOUR NAME>",
+        "url": "https://example.com/"
     },
-    "main": "./jq/one-single-utility.jq",
+    "main": "./jq/main.jq",
     "repository": {
         "type": "git",
-        "url": "git://github.com/joelpurra/jq-one-single-utility.git"
+        "url": "git://github.com/<GITHUB USERNAME>/jq-<PACKAGE NAME>.git"
     },
     "dependencies": {
-        "joelpurra/jq-another-utility": "^1.0.0",
+        "<GITHUB USERNAME>/jq-my-other-utility": "^1.0.0",
         "anotheruser/jq-url-splitting": "^2.3.4",
         "someuser/jq-smart-object-merging": "^0.7.1",
     },
@@ -108,7 +115,7 @@ This example shows the work-in-progress goal for `jq.json` metadata. It *can* be
     },
     "licenses": [{
         "type": "MIT",
-        "url": "http://joelpurra.mit-license.org/2014"
+        "url": "http://opensource.org/licenses/MIT"
     }],
     "keywords": [
         "jq-package"
