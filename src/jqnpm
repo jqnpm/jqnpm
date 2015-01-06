@@ -65,7 +65,8 @@ function initJqnpm {
 	config_default_remoteSuffix=".git"
 
 	packageMetadataFilename="jq.json"
-	localJqPackageBase="./.jq/packages"
+	packageMetadataDirectoryName=".jq"
+	localJqPackageBase="${packageMetadataDirectoryName}/packages"
 	defaultPackageJqFile="jq/main.jq"
 }
 

@@ -10,3 +10,9 @@ function containsUppercaseAscii {
 
 	return 1;
 }
+
+function replaceHomeWithTilde {
+	local fixedHome="${HOME//|/\|}"
+
+	sed "s|$fixedHome|~|g"
+}

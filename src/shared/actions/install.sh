@@ -6,6 +6,8 @@ function installSingle {
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
 
+	debugInPackageIfAvailable 5 "(installing single) '${dependencyName}@${dependencySemverRange}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
+
 	# Make sure the remote repository is in the local cache.
 	# TODO: implement --no-fetch.
 	"$jqnpmSourceFile" fetch "${dependencyName}@${dependencySemverRange}"
@@ -26,7 +28,7 @@ function installSingle {
 
 function installSingleManually {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	debugInPackageIfAvailable 4 "(installing manually) ${1}"
+	debugInPackageIfAvailable 4 "(installing manually) '${1}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
 	installSingle "$1"
 
@@ -37,6 +39,8 @@ function installSingleManually {
 function installFromJqJson {
 	(( "$#" != 0 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	requiresJqJson
+
+	debugInPackageIfAvailable 5 "(attempting install from jq.json) starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
 	# Reads jq.json, puts files in ./jq/packages/
 	# ./jq/packages/$dependencyName/
@@ -53,7 +57,7 @@ function installFromJqJson {
 		directDependencyNames[i++]="$dependencyName"
 	done < <(getDirectDependencyNames)
 
-	debugInPackage 4 "(preparing install) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+	debugInPackageIfAvailable 4 "(preparing install) directDependencyNames: '${directDependencyNames[@]}'"
 
 	hasDirectDependencies || return 0;
 

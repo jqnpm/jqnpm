@@ -75,7 +75,7 @@ function getValidPackageMainJq {
 
 	local mainPath="$(getPackageMainJqPath)"
 
-	echo "$mainPath"
+	echo -nE "$mainPath"
 }
 
 function requiresJqJson {
@@ -151,7 +151,6 @@ function hasValidPackageName {
 }
 
 function getValidPackageName {
-	# TODO: encode output with '@sh'?
 	local packageName=$(getPackageName)
 
 	if ! isPackageNameValid "$packageName";
@@ -163,7 +162,6 @@ function getValidPackageName {
 }
 
 function getValidPackageNameOrEmptyString {
-	# TODO: encode output with '@sh'?
 	local packageName=$(getPackageName)
 
 	if ! isPackageNameValid "$packageName";
@@ -291,7 +289,7 @@ function addOrUpdateDependencyAndRangeInJqJson {
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
 
-	debugInPackageIfAvailable 4 "(adding/updating in jq.json) dependency '${dependencyName}'@'${dependencySemverRange}'"
+	debugInPackageIfAvailable 3 "(adding/updating in jq.json) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
 	addOrUpdateDependencyAndRangePairInJqJson "$dependencyName" "$dependencySemverRange"
 }

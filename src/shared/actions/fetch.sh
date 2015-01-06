@@ -6,7 +6,7 @@ function fetchSingle {
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
 
-	debugInPackageIfAvailable 4 "(fetching) dependency '${dependencyName}'@'${dependencySemverRange}'"
+	debugInPackageIfAvailable 4 "(fetching single) dependency '${dependencyName}'@'${dependencySemverRange}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
 	# TODO: use a local folder per remote server, /github.com/?
 	# TODO: make building remote and cache variables functions.
@@ -24,13 +24,13 @@ function fetchSingle {
 	# TODO: use --bare repos, bundles or maybe zip files in cache?
 	# git clone --branch <tag> --single-branch --depth 1 "$remote" "$cache"
 	# TODO: fail gracefully if git fails.
-	debugInPackageIfAvailable 3 $(echo -E "Cloning '${remote}' to '${cache}'" | replaceHomeWithTilde)
+	debugInPackageIfAvailable 3 "Cloning '$(echo -nE "$remote" | replaceHomeWithTilde)' to '$(echo -nE "$cache" | replaceHomeWithTilde)'"
 	git clone --single-branch --depth 1 --quiet "$remote" "$cache"
 }
 
 function fetchSingleManually {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	debugInPackageIfAvailable 4 "(fetching manually) ${1}"
+	debugInPackageIfAvailable 4 "(fetching manually) '${1}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
 	fetchSingle "$1"
 }
@@ -40,6 +40,8 @@ function fetchFromJqJson {
 	# TODO: enable arguments controlling what is being fetched.
 	# For now, assume jq.json is being used, or die.
 	requiresJqJson
+
+	debugInPackageIfAvailable 5 "(attempting fetch from jq.json) starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
 	# Reads jq.json, clone remote repos to ./jq/packages/username/reponame
 	# This continues recursively.	
@@ -51,7 +53,7 @@ function fetchFromJqJson {
 		directDependencyNames[i++]="$dependencyName"
 	done < <(getDirectDependencyNames)
 
-	debugInPackage 4 "(preparing fetch) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
+	debugInPackageIfAvailable 4 "(preparing fetch) directDependencyNames: '${directDependencyNames[@]}'"
 
 	hasDirectDependencies || return 0;
 
