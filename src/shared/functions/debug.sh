@@ -3,14 +3,6 @@ function isDebugAtLevel {
 	local -i messageLevel="$1"
 	shift
 
-	# TODO: output debug message level.
-	# 0 fatal
-	# 1 errors
-	# 2 warnings
-	# 3 information
-	# 4 debug
-	# 5 verbose
-
 	if (( ${JQNPM_DEBUG_LEVEL:-2} >= $messageLevel ));
 	then
 		return 0;
@@ -19,12 +11,45 @@ function isDebugAtLevel {
 	return 1;
 }
 
+function getMessageLevelName {
+	case "$1" in
+		0)
+			echo -nE 'FATL'
+			;;
+		1)
+			echo -nE 'ERRO'
+			;;
+		2)
+			echo -nE 'WARN'
+			;;
+		3)
+			echo -nE 'INFO'
+			;;
+		4)
+			echo -nE 'DEBG'
+			;;
+		5)
+			echo -nE 'VRBO'
+			;;
+		*)
+			echo -nE 'OMG!'
+			;;
+	esac
+}
+
 function debug {
 	(( "$#" < 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	local -i messageLevel="$1"
 	shift
 
-	isDebugAtLevel "$messageLevel" && echo -E "jqnpm:" "$@" >&2
+	if isDebugAtLevel "$messageLevel";
+	then
+		local messageLevelName=$(getMessageLevelName "$messageLevel")
+
+		echo -nE "jqnpm: [${messageLevelName}]" >&2
+		echo -ne "\t" >&2
+		echo -E "$@" >&2
+	fi
 
 	return 0;
 }
@@ -34,9 +59,9 @@ function debugInPackageIfAvailable {
 	local -i messageLevel="$1"
 	shift
 
-	if hasPackageMetadataFile;
+	if hasPackageMetadataFile &>/dev/null;
 	then
-		debugInPackage "$messageLevel" "[$(getValidPackageNameOrEmptyString)]" "$@"
+		debugInPackage "$messageLevel" "$@"
 	else
 		debug "$messageLevel" "$@"
 	fi
