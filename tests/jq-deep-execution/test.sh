@@ -32,9 +32,8 @@ function testJqExecution () {
 	fi
 	popd >/dev/null
 
-	assertTrue "Package is installed" "[[ -d 'local-project/.jq/packages/anotheruser/pack1/' ]]"
-	assertTrue "Package is installed" "[[ -d 'local-project/.jq/packages/someuser/pack2/' ]]"
-	assertEquals "Result" 'abcdefghi' "$result"
+	assertTrue "Package anotheruser/pack1 is installed" "[[ -d 'local-project/.jq/packages/anotheruser/pack1/' ]]"
+	assertEquals "Result" 'abcdef' "$result"
 }
 
 

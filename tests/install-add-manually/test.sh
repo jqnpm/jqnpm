@@ -16,6 +16,7 @@ function cleanup {
 	rm -rf "package-cache/anotheruser/"
 	rm -rf "package-cache/someuser/"
 	git clean -fdX "package-cache/" "local-project/" >/dev/null
+	git checkout "local-project/jq.json"
 }
 
 function tearDown () {
@@ -24,11 +25,13 @@ function tearDown () {
 
 function testJqExecution () {
 	assertTrue "jq.json exists" "[[ -s 'local-project/jq.json' ]]"
+	assertFalse "Package anotheruser/pack1 is not installed" "[[ -d '.jq/packages/anotheruser/pack1/' ]]"
+	assertFalse "Package someuser/pack2 is not installed" "[[ -d '.jq/packages/someuser/pack2/' ]]"
 
 	pushd "local-project" >/dev/null
 	jqnpm install
-	assertTrue "Package is installed" "[[ -d '.jq/packages/anotheruser/pack1/' ]]"
-	assertFalse "Package is not installed" "[[ -d '.jq/packages/someuser/pack2/' ]]"
+	assertTrue "Package anotheruser/pack1 is installed" "[[ -d '.jq/packages/anotheruser/pack1/' ]]"
+	assertFalse "Package someuser/pack2 is not installed" "[[ -d '.jq/packages/someuser/pack2/' ]]"
 	pushd "one/two" >/dev/null
 	jqnpm install "someuser/pack2"
 	popd >/dev/null
@@ -36,9 +39,8 @@ function testJqExecution () {
 
 	assertTrue "jq.json exists" "[[ -s 'local-project/jq.json' ]]"
 	assertFalse "jq.json does not exist" "[[ -s 'local-project/one/two/jq.json' ]]"
-	assertTrue "Package is installed" "[[ -d 'local-project/.jq/packages/anotheruser/pack1/' ]]"
-	assertTrue "Package is installed" "[[ -d 'local-project/.jq/packages/someuser/pack2/' ]]"
-	assertEquals "Result" 'abcdefghi' "$result"
+	assertTrue "Package anotheruser/pack1 is installed" "[[ -d 'local-project/.jq/packages/anotheruser/pack1/' ]]"
+	assertTrue "Package someuser/pack2 is installed" "[[ -d 'local-project/.jq/packages/someuser/pack2/' ]]"
 }
 
 

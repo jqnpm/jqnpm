@@ -15,7 +15,11 @@ function installSingle {
 	debugInPackageIfAvailable 4 "(installing) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
 	local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
-	local localDependencyPath="${PWD}/${localJqPackageBase}/${dependencyName}"
+
+	createPackageRootIfNecessary
+
+	local packageRoot=$(getLocalPackageRoot)
+	local localDependencyPath="${packageRoot}/${localJqPackageBase}/${dependencyName}"
 
 	mkdir -p "$localDependencyPath"
 
@@ -23,6 +27,9 @@ function installSingle {
 	pushd "$cache" >/dev/null
 	# TODO: use the right tag.
 	git archive HEAD | tar x -C "$localDependencyPath"
+
+	# Make this installed package an unambiguous package root of its own.
+	mkdir -p "${localDependencyPath}/${packageMetadataDirectoryName}"
 	popd >/dev/null
 }
 
@@ -67,8 +74,8 @@ function installFromJqJson {
 		local dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
 
 		installSingle "${dependencyName}@${dependencySemverRange}"
-
-		local localDependencyPath="${PWD}/${localJqPackageBase}/${dependencyName}"
+		local packageRoot=$(getLocalPackageRoot)
+		local localDependencyPath="${packageRoot}/${localJqPackageBase}/${dependencyName}"
 
 		# Install recursively.
 		pushd "$localDependencyPath" >/dev/null
