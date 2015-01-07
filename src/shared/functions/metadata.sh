@@ -98,7 +98,7 @@ function getBestEffectivePackageRoot {
 		return 0;
 	fi
 
-	echo -nE "."
+	echo -nE "$PWD"
 
 	return 0;
 }
@@ -214,9 +214,9 @@ function packageMainJqPathIsValid {
 
 function packageMainJqPathExists {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	local relativeMainPath="$1"
+	local mainPath="$1"
 
-	if [[ -s "$relativeMainPath" ]];
+	if [[ -s "$mainPath" ]];
 	then
 		return 0;
 	fi
