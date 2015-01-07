@@ -10,7 +10,16 @@ jqnpmSourceFile="${BASH_SOURCE}"
 source "${BASH_SOURCE%/*}/shared/functions/debug.sh"
 source "${BASH_SOURCE%/*}/shared/functions/basic.sh"
 source "${BASH_SOURCE%/*}/shared/functions/filesystem-temp.sh"
-source "${BASH_SOURCE%/*}/shared/functions/metadata.sh"
+
+
+# Metadata
+source "${BASH_SOURCE%/*}/shared/metadata/package-root.sh"
+source "${BASH_SOURCE%/*}/shared/metadata/jq.json.sh"
+source "${BASH_SOURCE%/*}/shared/metadata/main.jq.sh"
+source "${BASH_SOURCE%/*}/shared/metadata/validation.sh"
+source "${BASH_SOURCE%/*}/shared/metadata/read.sh"
+source "${BASH_SOURCE%/*}/shared/metadata/update.sh"
+
 
 # Actions
 # TODO: implement other actions.
