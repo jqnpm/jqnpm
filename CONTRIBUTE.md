@@ -68,21 +68,41 @@ In order to understand the direction of the development, you could spend an hour
 
 
 #### Example [`import` resolving algorithm](http://nodejs.org/api/modules.html#modules_all_together)
-- Strings exactly matching packages/modules internal to the current `jq` build are loaded with priority.
-- Strings starting with `./`, `../` or `/` are treated as paths.
-  - Paths can point to:
-    - A specific file:
-      - `./more/code-goes-here.jq` (for example).
-      - `../data/data-goes-here.json` (for example).
-    - A directory containing:
-      - A `jq.json` file.
-        - With a `main` property path.
-      - A subpath `jq/main.jq`.
-      - A subpath `data/main.json`.
-- Other strings are treated as package names.
-  - Packages in the package root's `./.jq/packages/` subdirectory.
-  - (From [other documentation](https://github.com/stedolan/jq/blob/56ae88d9d55582e8d0036601e3186d88861bf105/docs/content/3.manual/manual.yml)) The default search path is the search path given to the `-L` command-line option, else the "$JQ_LIBRARY_PATH", if set in the environment, else `["~/.jq", "$ORIGIN/../lib/jq"]` (on Unix) or `["~/.jq", "$ORIGIN/lib"]` (on Windows).
-- If nothing could be resolved, throw error.
+
+- Here `P` means the package root: the first of the current or any parent directory which contains a directory `.jq/`.
+- Here `D` means a directory referenced during the lookups.
+- Here `F` means the file used by `jq` for further parsing of the contents.
+
+For `import "<package>" as <alias>;` follow these steps to find `D`:
+
+- `<package>` strings exactly matching packages/modules internal to the current `jq` build are loaded with priority.
+- `<package>` strings starting with `./`, `../` or `/` are treated as paths.
+  - Absolute paths starting with `/`:
+    - Start in the (file) system root `/` on non-Windows systems.
+    - Are used as [`file://` paths on Windows systems](https://en.wikipedia.org/wiki/File_URI_scheme): `file://` + `/c:/dev/directory/` -> `file:///c:/dev/directory/`.
+  - Relative paths starting with `./` or `../` are relative to:
+    - The directory containging the jq script file which used the `import` statement.
+    - The current directory `$PWD` if the script is given on the command line: `jq 'import ...'`.
+  - `<package>` strings which are paths can point to:
+    1. A file path which becomes `F`.
+    1. A directory path which becomes `D` and used the directory lookup steps below.
+- Other strings are treated as package names:
+  - Package names can use `/` as directory delimiters.
+  - Package names are relative to `P/.jq/packages/`.
+  - Let `D` be `P/.jq/packages/<package>/` and used the directory lookup steps.
+- If `D` is set, follow these directory lookup steps:
+  1. A path `D/jq/main.jq`, which if it exists becomes `F`.
+  1. A path `D/data/main.json`, which if it exists becomes `F`.
+  1. If `D/jq.json` is a file which exists:
+    - Use the `main` property path `cat D/jq.json | jq '.main'` as `F`.
+- Treating `F`:
+  - If the file `F` is `null` or doesn't exist, throw an error.
+  - If the file extensions is `.jq`, it's a jq script: `./more/code-goes-here.jq` (for example).
+  - If the file extension is `.json`, it's data: `../data/data-goes-here.json` (for example).
+  - If the file extensions is anything else, throw an error.
+- If nothing could be resolved, throw an error.
+
+The resulting file `F` should now have been resolved, and the `import ...` statement can continue with file parsing.
 
 
 ### Alternative solutions
