@@ -1,0 +1,16 @@
+* text=auto
+
+*.jq text
+*.json text
+*.md text
+*.sh text
+
+*.svg text
+*.txt text
+*.url text
+
+./LICENSE* text
+./src/jqnpm text
+
+.gitattributes text
+.gitignore text
