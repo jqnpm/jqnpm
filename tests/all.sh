@@ -2,12 +2,23 @@
 set -e
 
 function runAllTests {
+    local LIGHT_BLUE="[1;34m"
+    local NO_COLOUR="[0m"
+
 	while IFS= read -r -d '' file;
 	do
-		dirpath=$(dirname "$file")	
-		dirname=$(basename -a "$dirpath")
-		filename=$(basename -a "$file")
-		echo "${dirname}/${filename}"
+		local dirpath=$(dirname "$file")
+		local dirname=$(basename -a "$dirpath")
+		local filename=$(basename -a "$file")
+		local shortTestPath="${dirname}/${filename}"
+
+		echo
+		echo -nE "------------------------- "
+		echo -ne "${LIGHT_BLUE}"
+		echo -nE "$shortTestPath"
+		echo -ne "${NO_COLOUR}"
+		echo -nE " -------------------------"
+		echo
 
 		# Execute tests in a subshell in their own directory.
 		pushd "$dirpath" >/dev/null
