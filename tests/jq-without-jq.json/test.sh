@@ -15,8 +15,9 @@ function tearDown () {
 	cleanup
 }
 
-function testJqExecutionWithoutJqJsonNorMainJq () {
+function testJqExecutionWithoutJqJson () {
 	assertFalse "jq.json doesn't exist" "[[ -s 'local-project/jq.json' ]]"
+	assertTrue "jq/main.jq exists" "[[ -s 'local-project/jq/main.jq' ]]"
 
 	pushd "local-project" >/dev/null
 	local result=$(echo '{ "hello": "world" }' | "$jqCommandUnderTest")
