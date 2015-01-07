@@ -13,19 +13,28 @@ function fetchSingle {
 	local remote="${JQNPM_REMOTE_BASE:-$config_default_remoteBase}/${dependencyName}${JQNPM_REMOTE_SUFFIX:-$config_default_remoteSuffix}"
 	local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
 
-	if [[ ! -d "$cache" ]];
-	then
-		mkdir -p "$cache"
-	fi
-
 	# TODO: get list of local tags, match against it.
 	# TODO: get a list of remote tags.
 	# TODO: only download the best-matching tag, not the entire repository.
 	# TODO: use --bare repos, bundles or maybe zip files in cache?
 	# git clone --branch <tag> --single-branch --depth 1 "$remote" "$cache"
 	# TODO: fail gracefully if git fails.
-	debugInPackageIfAvailable 3 "Cloning '$(echo -nE "$remote" | replaceHomeWithTilde)' to '$(echo -nE "$cache" | replaceHomeWithTilde)'"
-	git clone --single-branch --depth 1 --quiet "$remote" "$cache"
+	if [[ ! -d "$cache" ]];
+	then
+		mkdir -p "$cache"
+
+		debugInPackageIfAvailable 3 "Cloning repository '$(echo -nE "$remote" | replaceHomeWithTilde)' to '$(echo -nE "$cache" | replaceHomeWithTilde)'"
+
+		# Fetch new repository
+		git clone --single-branch --depth 1 --quiet "$remote" "$cache"
+	else
+		pushd "$cache" >/dev/null
+		debugInPackageIfAvailable 3 "Fetching new commits '$(echo -nE "$remote" | replaceHomeWithTilde)' to '$(echo -nE "$cache" | replaceHomeWithTilde)'"
+
+		# Update existing repository
+		git pull --depth 1 --quiet &>/dev/null
+		popd >/dev/null
+	fi
 }
 
 function fetchSingleManually {
