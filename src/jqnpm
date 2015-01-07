@@ -21,6 +21,11 @@ source "${BASH_SOURCE%/*}/shared/metadata/read.sh"
 source "${BASH_SOURCE%/*}/shared/metadata/update.sh"
 
 
+# Workarounds
+# TODO: remove when jq is confirmed to fully support whatever workarounds there are.
+source "${BASH_SOURCE%/*}/shared/functions/workarounds-jq.sh"
+
+
 # Actions
 # TODO: implement other actions.
 # TODO: write tests per function.

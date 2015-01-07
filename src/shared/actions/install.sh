@@ -31,6 +31,12 @@ function installSingle {
 	# Make this installed package an unambiguous package root of its own.
 	mkdir -p "${localDependencyPath}/${packageMetadataDirectoryName}"
 	popd >/dev/null
+
+	pushd "$localDependencyPath" >/dev/null
+	# TODO DEBUG REMOVE: work around limitations in jq's `import` resolving algorithm.
+	# Current jq assumes the main package path for package P is `P/basename(P).jq`.
+	jqMainPathWorkaroundInstall
+	popd >/dev/null
 }
 
 function installSingleManually {
