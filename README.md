@@ -153,7 +153,7 @@ As packages are stored on [github.com](https://github.com/) (by default), an acc
 ---
 
 ## License
-Copyright (c) 2014, Joel Purra <http://joelpurra.com/>
+Copyright (c) 2014, 2015, Joel Purra <http://joelpurra.com/>
 All rights reserved.
 
 When using **jqnpm**, comply to at least one of the three available licenses: BSD, MIT, GPL.

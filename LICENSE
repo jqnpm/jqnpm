@@ -1,5 +1,5 @@
 jqnpm jq package manager. A package manager built for jq as an example implementation.
-Copyright (c) 2014, Joel Purra <http://joelpurra.com/>
+Copyright (c) 2014, 2015, Joel Purra <http://joelpurra.com/>
 All rights reserved.
 
 When using jqnpm, comply to at least one of the three available licenses: BSD, MIT, GPL.
