@@ -16,19 +16,26 @@ function execute {
 		debugInPackageIfAvailable 4 "(preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 	fi
 
+	if hasValidPackageMainJq;
+	then
+		local mainPath=$(getValidPackageMainJq)
+
+		debugInPackageIfAvailable 3 "(preparing execute) found the main jq file: '${mainPath}'"
+	else
+		debugInPackageIfAvailable 4 "(preparing execute) found no main jq file"
+	fi
+
 	if hasPackageMetadataFile && hasDirectDependencies;
 	then
 		if hasValidPackageMainJq;
 		then
-			local mainPath=$(getValidPackageMainJq)
-
 			# TODO: don't *completely* redefine the orginal library path?
 			# The default contains useful, and therefore possibly widespread, defaults.
 			# The defaults are also system-dependent.
 
 			# Take care when editing the follow line, so debugging information and actual command stay in sync.
-			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" -f "${PWD}/${mainPath}" "$@"
-			jq -L "$localJqPackageBase" -f "${PWD}/${mainPath}" "$@"
+			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" -f "$mainPath" "$@"
+			jq -L "$localJqPackageBase" -f "$mainPath" "$@"
 		else
 			# Take care when editing the follow line, so debugging information and actual command stay in sync.
 			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" "$@"
@@ -37,11 +44,9 @@ function execute {
 	else
 		if hasValidPackageMainJq;
 		then
-			local mainPath=$(getValidPackageMainJq)
-
 			# Take care when editing the follow line, so debugging information and actual command stay in sync.
-			debugInPackageIfAvailable 5 "(executing jq)" jq -f "${PWD}/${mainPath}" "$@"
-			jq -f "${PWD}/${mainPath}" "$@"
+			debugInPackageIfAvailable 5 "(executing jq)" jq -f "$mainPath" "$@"
+			jq -f "$mainPath" "$@"
 		else
 			# Take care when editing the follow line, so debugging information and actual command stay in sync.
 			debugInPackageIfAvailable 5 "(executing jq)" jq "$@"

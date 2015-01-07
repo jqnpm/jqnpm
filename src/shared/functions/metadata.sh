@@ -1,5 +1,31 @@
-function hasPackageMetadataFile {
-	if [[ -s "$packageMetadataFilename" ]];
+function getLocalPackageRoot {
+	# Here 'local' means not in $HOME.
+
+	local originalPWD="$PWD"
+
+	(
+		until [[ -d "$packageMetadataDirectoryName" ]];
+		do
+			cd ..
+
+			if [[ "$PWD" == "/" || "$PWD" == "$HOME" ]];
+			then
+				debug 5 "could not find nearest 'local' package root starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
+
+				return 1;
+			fi
+		done
+
+		debug 5 "found nearest 'local' package root '$(echo -nE "$PWD" | replaceHomeWithTilde)' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
+
+		echo -nE "${PWD}"
+	)
+
+	return 0;
+}
+
+function isInsidePackageWithRoot {
+	if [[ ! -z $(getLocalPackageRoot 2>/dev/null) ]];
 	then
 		return 0;
 	fi
@@ -7,22 +33,164 @@ function hasPackageMetadataFile {
 	return 1;
 }
 
-function getPackageMainJqPath {
+function getNearestJqJsonDirectory {
+	local originalPWD="$PWD"
+
+	(
+		until [[ -s "$packageMetadataFilename" ]];
+		do
+			if [[ "$PWD" == "/" ]];
+			then
+				debug 5 "could not find nearest 'jq.json' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
+
+				return 1;
+			fi
+
+			cd ..
+		done
+
+		debug 7 "found nearest directory with 'jq.json' '$(echo -nE "$PWD" | replaceHomeWithTilde)' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
+
+		echo -nE "$PWD"
+	)
+
+	return 0;
+}
+
+function getNearestJqJson {
+	local nearestJqJsonDirectory=$(getNearestJqJsonDirectory 2>/dev/null)
+
+	if [[ ! -z "$nearestJqJsonDirectory" ]];
+	then
+		local nearestJqJson="${nearestJqJsonDirectory}/${packageMetadataFilename}"
+
+		debug 6 "found nearest 'jq.json' '$(echo -nE "$nearestJqJson" | replaceHomeWithTilde)' starting in '$(echo -nE "$PWD" | replaceHomeWithTilde)'"
+
+		echo -nE "$nearestJqJson"
+
+		return 0;
+	fi
+
+	return 1;
+}
+
+function hasPackageMetadataFile {
+	if [[ -z $(getNearestJqJson 2>/dev/null) ]];
+	then
+		return 1;
+	fi
+
+	return 0;
+}
+
+function getBestEffectivePackageRoot {
+	if isInsidePackageWithRoot;
+	then
+		getLocalPackageRoot
+
+		return 0;
+	fi
+
 	if hasPackageMetadataFile;
 	then
-		local mainPathFromJqJson=$(getPackageMainPath)
-		local mainPath="${mainPathFromJqJson:-$defaultPackageJqFile}"
+		getNearestJqJsonDirectory
 
-		echo -nE "$mainPath"
-	else
-		echo -nE "$defaultPackageJqFile"
+		return 0;
 	fi
+
+	echo -nE "."
+
+	return 0;
+}
+
+function getBestNewDotJqDirectoryPath {
+	if isInsidePackageWithRoot;
+	then
+		die 300 "can't create a new '$packageMetadataDirectoryName' inside an existing package."
+	fi
+
+	if hasPackageMetadataFile;
+	then
+		local nearestJqJsonDirectory=$(getNearestJqJsonDirectory)
+
+		echo -nE "${nearestJqJsonDirectory}/${packageMetadataDirectoryName}"
+
+		return 0;
+	fi
+
+	echo -nE "$packageMetadataDirectoryName"
+
+	return 0;
+}
+
+function getBestNewJqJsonPath {
+	if isInsidePackageWithRoot;
+	then
+		local localPackageRoot=$(getLocalPackageRoot)
+
+		echo -nE "${localPackageRoot}/${packageMetadataFilename}"
+
+		return 0;
+	fi
+
+	echo -nE "$packageMetadataFilename"
+
+	return 0;
+}
+
+function getBestNewMainJqPath {
+	if isInsidePackageWithRoot;
+	then
+		local localPackageRoot=$(getLocalPackageRoot)
+
+		echo -nE "${localPackageRoot}/${defaultPackageJqFile}"
+
+		return 0;
+	fi
+
+	echo -nE "$defaultPackageJqFile"
+
+	return 0;
+}
+
+function getRelativePackageMainJqPath {
+	if hasPackageMetadataFile;
+	then
+		local packageMainPathFromJqJson=$(getPackageMainPathFromJqJson)
+
+		if [[ -z "$packageMainPathFromJqJson" ]];
+		then
+			echo -nE "${defaultPackageJqFile}"
+
+			return 0;
+		fi
+
+		echo -nE "${packageMainPathFromJqJson}"
+
+		return 0;
+	fi
+
+	echo -nE "${defaultPackageJqFile}"
+}
+
+function getAbsolutePackageMainJqPath {
+	local bestEffectivePackageRoot=$(getBestEffectivePackageRoot)
+
+	if hasPackageMetadataFile;
+	then
+		local packageMainPathFromJqJson=$(getRelativePackageMainJqPath)
+
+		echo -nE "${bestEffectivePackageRoot}/${packageMainPathFromJqJson}"
+
+		return 0;
+	fi
+
+	echo -nE "${bestEffectivePackageRoot}/${defaultPackageJqFile}"
 }
 
 function simplePathIsInsidePackageCheck {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	local path="$1"
-
 
 	if [[ "$path" =~ \.\. ]] || [[ "$path" =~ // ]] || [[ "$path" =~ ^/ ]];
 	then
@@ -34,9 +202,9 @@ function simplePathIsInsidePackageCheck {
 
 function packageMainJqPathIsValid {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	local mainPath="$1"
+	local relativeMainPath="$1"
 
-	if simplePathIsInsidePackageCheck "$mainPath" && [[ "${mainPath:(-3)}" == ".jq" ]];
+	if simplePathIsInsidePackageCheck "$relativeMainPath" && [[ "${relativeMainPath:(-3)}" == ".jq" ]];
 	then
 		return 0;
 	fi
@@ -46,9 +214,9 @@ function packageMainJqPathIsValid {
 
 function packageMainJqPathExists {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	local mainPath="$1"
+	local relativeMainPath="$1"
 
-	if [[ -s "$mainPath" ]];
+	if [[ -s "$relativeMainPath" ]];
 	then
 		return 0;
 	fi
@@ -57,9 +225,10 @@ function packageMainJqPathExists {
 }
 
 function hasValidPackageMainJq {
-	local mainPath="$(getPackageMainJqPath)"
+	local relativeMainPath="$(getRelativePackageMainJqPath)"
+	local absoluteMainPath="$(getAbsolutePackageMainJqPath)"
 
-	if packageMainJqPathIsValid "$mainPath" && packageMainJqPathExists "$mainPath";
+	if packageMainJqPathIsValid "$relativeMainPath" && packageMainJqPathExists "$absoluteMainPath";
 	then
 		return 0;
 	fi
@@ -73,9 +242,11 @@ function getValidPackageMainJq {
 		die 200 "package did not have a valid main .jq file in the package."
 	fi
 
-	local mainPath="$(getPackageMainJqPath)"
+	local absoluteMainPath="$(getAbsolutePackageMainJqPath)"
 
-	echo -nE "$mainPath"
+	debug 5 "found valid main path: '${absoluteMainPath}'"
+
+	echo -nE "$absoluteMainPath"
 }
 
 function requiresJqJson {
@@ -89,7 +260,7 @@ function replaceHomeWithTilde {
 }
 
 function currentMetadata {
-	cat "$packageMetadataFilename"
+	cat "$(getNearestJqJson)"
 }
 
 function packageNameStartsWithLowercaseJqDash {
@@ -136,7 +307,7 @@ function getDirectDependencyNames {
 
 function getPackageName {
 	# TODO: encode output with '@sh'?
-	currentMetadata | jq --join-output '.name'
+	currentMetadata | jq --join-output '.name // ""'
 }
 
 function hasValidPackageName {
@@ -172,7 +343,7 @@ function getValidPackageNameOrEmptyString {
 	echo -nE "$packageName"
 }
 
-function getPackageMainPath {
+function getPackageMainPathFromJqJson {
 	# TODO: encode output with '@sh'?
 	currentMetadata | jq --join-output '.main // ""'
 }
@@ -183,7 +354,7 @@ function getDirectDependencyVersion {
 	shift
 
 	# TODO: encode output with '@sh'?
-	currentMetadata | jq --join-output --arg dependencyName "$dependencyName" '.dependencies[$dependencyName]'
+	currentMetadata | jq --join-output --arg dependencyName "$dependencyName" '.dependencies[$dependencyName] // ""'
 }
 
 function hasDirectDependencies {
@@ -200,6 +371,17 @@ function hasDirectDependencies {
 	(( numberOfDirectDependencyNames == 0 )) && return 1;
 
 	return 0;
+}
+
+function createPackageRootIfNecessary {
+	if ! isInsidePackageWithRoot;
+	then
+		local bestNewDotJqDirectoryPath=$(getBestNewDotJqDirectoryPath)
+
+		debug 5 "creating package root in: '${bestNewDotJqDirectoryPath}' in '$PWD'"
+
+		mkdir -p "$bestNewDotJqDirectoryPath"
+	fi
 }
 
 # TODO: use "real" versions for jq and jqnpm.
@@ -236,7 +418,11 @@ function createMinimalJqJsonWithPackageName {
 
 	packageNameMeetsLengthRequirement "$packageName" || debugInPackageIfAvailable 2 "package name length is shorter than ${minimumRecommendedPackageNameLength}: '${packageName}'"
 
-	echo -nE "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$packageMetadataFilename"
+	local bestNewJqJsonPath=$(getBestNewJqJsonPath)
+
+	debugInPackageIfAvailable 4 "creating new '${packageMetadataFilename}': '${bestNewJqJsonPath}'"
+
+	echo -nE "$defaultMinmalJqJson" | jq --arg "packageName" "$packageName" '.name=$packageName' > "$bestNewJqJsonPath"
 }
 
 function createMinimalJqJsonIfNecessary {
@@ -251,8 +437,10 @@ function createMinimalJqJsonIfNecessary {
 function createMinmalMainJqIfNecessary {
 	if ! hasValidPackageMainJq;
 	then
-		mkdir -p "$(dirname "$defaultPackageJqFile")"
-		echo -E "# Write your jq code here!" >"$defaultPackageJqFile"
+		local bestNewMainJqPath=$(getBestNewMainJqPath)
+
+		mkdir -p "$(dirname "$bestNewMainJqPath")"
+		echo -E "# Write your jq code here!" >"$bestNewMainJqPath"
 	fi
 }
 
@@ -276,8 +464,12 @@ function addOrUpdateDependencyAndRangePairInJqJson {
 
 	createMinimalJqJsonIfNecessary
 
-	<"$packageMetadataFilename" jq --arg depName "$dependencyName" --arg depSemverRange "$dependencySemverRange" "$addOrUpdateDependencyInJqJson" >"$tmpFilePath"
-	cp "$tmpFilePath" "$packageMetadataFilename"
+	local packageMetadataFilePath=$(getNearestJqJson)
+
+	debugInPackageIfAvailable 4 "(adding/updating in jq.json) dependency '${dependencyName}'@'${dependencySemverRange}' added to '$packageMetadataFilePath'"
+
+	<"$packageMetadataFilePath" jq --arg depName "$dependencyName" --arg depSemverRange "$dependencySemverRange" "$addOrUpdateDependencyInJqJson" >"$tmpFilePath"
+	cp "$tmpFilePath" "$packageMetadataFilePath"
 	rm "$tmpFilePath"
 }
 
