@@ -16,3 +16,18 @@ function replaceHomeWithTilde {
 
 	sed "s|$fixedHome|~|g"
 }
+
+function arrayContainsValue {
+	local value="$1"
+	shift
+
+	for v in "$@";
+	do
+		if [[ "$value" == "$v" ]];
+		then
+			return 0;
+		fi
+	done
+
+	return 1;
+}

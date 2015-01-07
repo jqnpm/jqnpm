@@ -1,6 +1,15 @@
 # TODO: remove execute capabilities once jq is up to speed with the package import algorithm.
 # One should not have to use `jqnpm execute` when `jq` is enough.
 # https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md#requirements-for-the-jq-binary
+function jqArgumentsContainFileArgument {
+	if arrayContainsValue "-f" "$@" || arrayContainsValue "--from-file" "$@" ]];
+	then
+		return 0;
+	fi
+
+	return 1;
+}
+
 function execute {
 	if hasPackageMetadataFile && isDebugAtLevel 4;
 	then
@@ -16,18 +25,27 @@ function execute {
 		debugInPackageIfAvailable 4 "(preparing execute) numberOfDirectDependencyNames: ${numberOfDirectDependencyNames} directDependencyNames: '${directDependencyNames[@]}'"
 	fi
 
-	if hasValidPackageMainJq;
-	then
-		local mainPath=$(getValidPackageMainJq)
+	local usePackageMainJq="false"
 
-		debugInPackageIfAvailable 3 "(preparing execute) found the main jq file: '${mainPath}'"
+	if jqArgumentsContainFileArgument "$@";
+	then
+		debugInPackageIfAvailable 4 "(preparing execute) call contains '-f' or '--from-file' argument, skipping checking for main jq file."
 	else
-		debugInPackageIfAvailable 4 "(preparing execute) found no main jq file"
+		if hasValidPackageMainJq;
+		then
+			local mainPath=$(getValidPackageMainJq)
+
+			debugInPackageIfAvailable 3 "(preparing execute) found the main jq file: '${mainPath}'"
+
+			usePackageMainJq="true"
+		else
+			debugInPackageIfAvailable 4 "(preparing execute) found no main jq file"
+		fi
 	fi
 
 	if hasPackageMetadataFile && hasDirectDependencies;
 	then
-		if hasValidPackageMainJq;
+		if [[ "$usePackageMainJq" == "true" ]];
 		then
 			# TODO: don't *completely* redefine the orginal library path?
 			# The default contains useful, and therefore possibly widespread, defaults.
@@ -42,7 +60,7 @@ function execute {
 			jq -L "$localJqPackageBase" "$@"
 		fi
 	else
-		if hasValidPackageMainJq;
+		if [[ "$usePackageMainJq" == "true" ]];
 		then
 			# Take care when editing the follow line, so debugging information and actual command stay in sync.
 			debugInPackageIfAvailable 5 "(executing jq)" jq -f "$mainPath" "$@"
