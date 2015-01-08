@@ -32,6 +32,16 @@ function arrayContainsValue {
 	return 1;
 }
 
+function joinLines {
+	tr -d '\n-'
+}
+
+function dashesToPascalCase {
+	sed -e '1 s/^/-/' -e 's/-./\
+&\
+/g' | sed -e '/^-.$/ y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' -e 's/-//g' | joinLines
+}
+
 declare COLOR_BLUE="[0;34m"
 declare COLOR_RED="[0;31m"
 declare COLOR_LIGHT_RED="[1;31m"

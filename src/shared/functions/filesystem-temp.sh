@@ -3,9 +3,11 @@ function createTempFileDirectoryIfNecessary {
 	then
 		local base=$(basename "$jqnpmSourceFile")
 
-		internalTmpDir=$(mktemp -d "${TMPDIR:-TMP}${base}.XXXXXX")
+		echo -nE $(mktemp -d "${TMPDIR:-TMP}${base}.XXXXXX")
 	fi
 }
+
+declare -g internalTmpDir=$(createTempFileDirectoryIfNecessary)
 
 function rmTempFileDirectory {
 	if [[ ! -z "${internalTmpDir}" && -d "${internalTmpDir}" ]];
@@ -24,3 +26,16 @@ function getTempFilePath {
 
 	echo -nE "$tmpPath"
 }
+
+function getAdressableTempFilePath {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	# TODO: validate path format.
+	local adress="$1"
+
+	createTempFileDirectoryIfNecessary
+
+	local tmpPath="${internalTmpDir}/tmp.${adress}"
+
+	echo -nE "$tmpPath"
+}
+
