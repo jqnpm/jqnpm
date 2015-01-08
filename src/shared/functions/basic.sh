@@ -31,3 +31,14 @@ function arrayContainsValue {
 
 	return 1;
 }
+
+declare COLOR_BLUE="[0;34m"
+declare COLOR_RED="[0;31m"
+declare COLOR_LIGHT_RED="[1;31m"
+declare COLOR_LIGHT_GRAY="[0;37m"
+declare COLOR_LIGHT_GREEN="[1;32m"
+declare COLOR_LIGHT_BLUE="[1;34m"
+declare COLOR_LIGHT_CYAN="[1;36m"
+declare COLOR_YELLOW="[1;33m"
+declare COLOR_WHITE="[1;37m"
+declare COLOR_NO_COLOR="[0m"

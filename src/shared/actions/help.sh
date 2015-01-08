@@ -1,23 +1,23 @@
 function help {
 	(( "$#" != 0 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	echo "jqnpm: npm style package manager for jq"
-	echo "https://github.com/joelpurra/jqnpm"
+	echo "${COLOR_WHITE}https://github.com/joelpurra/jqnpm${COLOR_NO_COLOR}"
 	echo
-	echo "jqnpm <action> [options]"
+	echo "jqnpm ${COLOR_WHITE}<action>${COLOR_NO_COLOR} [options]"
 	echo
-	echo "Actions"
-	echo "  help"
+	echo "Actions:"
+	echo "  ${COLOR_WHITE}help${COLOR_NO_COLOR}"
 	echo "    Show this help."
 	echo
-	echo "  initialize"
+	echo "  ${COLOR_WHITE}initialize${COLOR_NO_COLOR}"
 	echo "    Create default jq.json and jq/main.jq files."
 	echo
-	echo "  fetch [package]"
+	echo "  ${COLOR_WHITE}fetch${COLOR_NO_COLOR} [package]"
 	echo "    Preload package cache from remote server."
 	echo
-	echo "  install [package]"
+	echo "  ${COLOR_WHITE}install${COLOR_NO_COLOR} [package]"
 	echo "    Install/add jq.json dependencies to the current directory."
 	echo
-	echo "  execute [flags for jq]"
+	echo "  ${COLOR_WHITE}execute${COLOR_NO_COLOR} [flags for jq]"
 	echo "    Run normal jq with dependencies. **This is a workaround until plain jq is up to speed.**"
 }
