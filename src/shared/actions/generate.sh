@@ -90,12 +90,22 @@ function generate {
 	cp -iR "${pluginInputPath}/." "$pluginOutputPath"
 
 
+	# Initialize a new git repository.
+	pushd "$pluginOutputPath" >/dev/null
+	git init | replaceHomeWithTilde
+	set +e
+	git remote add -f -t 'master' -m 'master' 'origin' "git@github.com:${username}/${fullPackageName}.git" &>/dev/null
+	git pull --rebase &>/dev/null
+	set -e
+	popd >/dev/null
+
+
 	# Find files in the target directory.
 	declare -a filesInOutput=()
 	while IFS= read -r -d '' fileInOutput;
 	do
 		filesInOutput+=("$fileInOutput")
-	done < <(find "$pluginOutputPath" -type f -print0)
+	done < <(find "$pluginOutputPath" -type f -not -path '*/.git/*' -print0)
 
 	debug 5 "Found ${#filesInOutput[@]} files in: '$(echo -nE "$pluginOutputPath" | replaceHomeWithTilde)'"
 
