@@ -1,17 +1,16 @@
+declare -A cachedGithubUserInformation
+
 function fetchGithubUserInformation {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	# TODO: validate username format.
 	local username="$1"
+	local githubUserInformationUrl="${JQNPM_GITHUB_API_BASE:-$config_default_GithubApiBase}/users/${username}"
 
-	if isDebugAtLevel 5;
-	then
-		echo '{ "name": "Test User", "blog": "https://example.org/" }'
-	else
-		curl --silent "https://api.github.com/users/${username}"
-	fi
+	debug 5 "Fetching github user information: '$(echo -nE "$githubUserInformationUrl" | replaceHomeWithTilde)'"
+
+	curl --silent "$githubUserInformationUrl"
 }
 
-declare -A cachedGithubUserInformation
 function getGithubUserInformation {
 	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	# TODO: validate username format.
@@ -69,7 +68,7 @@ function generate {
 	local userHomepageUrl=$(getGithubUserHomepageUrl "$username")
 	if [[ -z "$userHomepageUrl" ]];
 	then
-		userHomepageUrl="https://github.com/${username}"
+		userHomepageUrl="${JQNPM_GITHUB_BASE:-$config_default_GithubBase}/${username}"
 	fi
 
 	debug 3 "Full name and homepage for github user '${username}': '${userFullName}', '${userHomepageUrl}'"
@@ -87,17 +86,23 @@ function generate {
 	[[ -d "$pluginOutputPath" || -e "$pluginOutputPath" ]] && die 400 "could not generate package; the folder exists: '$(echo -nE "$pluginOutputPath" | replaceHomeWithTilde)'"
 
 	mkdir -p "$pluginOutputPath"
-	cp -iR "${pluginInputPath}/." "$pluginOutputPath"
 
 
 	# Initialize a new git repository.
+	local remoteWriteableRepository="${JQNPM_GITHUB_REPOSITORY_WRITEABLE_BASE:-$config_default_GithubRepositoryWriteableBase}${username}/${fullPackageName}${JQNPM_GITHUB_REPOSITORY_WRITEABLE_SUFFIX:-$config_default_GithubRepositoryWriteableSuffix}"
+
 	pushd "$pluginOutputPath" >/dev/null
 	git init | replaceHomeWithTilde
 	set +e
-	git remote add -f -t 'master' -m 'master' 'origin' "git@github.com:${username}/${fullPackageName}.git" &>/dev/null
+	git remote add -f -t 'master' -m 'master' 'origin' "$remoteWriteableRepository" &>/dev/null
+	git checkout master
 	git pull --rebase &>/dev/null
 	set -e
 	popd >/dev/null
+
+
+	# Copy the  files to the target directory.
+	cp -iR "${pluginInputPath}/." "$pluginOutputPath"
 
 
 	# Find files in the target directory.
