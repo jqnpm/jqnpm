@@ -10,6 +10,7 @@ jqnpmSourceFile="${BASH_SOURCE}"
 source "${BASH_SOURCE%/*}/shared/functions/debug.sh"
 source "${BASH_SOURCE%/*}/shared/functions/basic.sh"
 source "${BASH_SOURCE%/*}/shared/functions/filesystem-temp.sh"
+source "${BASH_SOURCE%/*}/shared/functions/configuration.sh"
 
 
 # Metadata
@@ -73,16 +74,12 @@ function initJqnpm {
 	# TODO: check for `git` with support for `git clone --branch <tag> --single-branch --depth 1`.
 	[[ -z $(which git) ]] && die 1 "git is required."
 
-	# TODO: normalize configuration, configuration defaults and internal variable names.
-	config_default_packagesCache="$HOME/.jq/packages"
-	config_default_remoteBase="git://github.com"
-	config_default_remoteSuffix=".git"
-
 	packageMetadataFilename="jq.json"
 	packageMetadataDirectoryName=".jq"
 	localJqPackageBase="${packageMetadataDirectoryName}/packages"
 	defaultPackageJqFile="jq/main.jq"
 }
 
+# End functions, start execution.
 initJqnpm "$@";
 main "$@";
