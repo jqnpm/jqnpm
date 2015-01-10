@@ -95,7 +95,7 @@ function generate {
 	git init | replaceHomeWithTilde
 	set +e
 	git remote add -f -t 'master' -m 'master' 'origin' "$remoteWriteableRepository" &>/dev/null
-	git checkout master
+	git checkout master &>/dev/null
 	git pull --rebase &>/dev/null
 	set -e
 	popd >/dev/null

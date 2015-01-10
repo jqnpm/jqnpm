@@ -32,7 +32,11 @@ function fetchSingle {
 		debugInPackageIfAvailable 3 "Fetching new commits '$(echo -nE "$remote" | replaceHomeWithTilde)' to '$(echo -nE "$cache" | replaceHomeWithTilde)'"
 
 		# Update existing repository
-		git pull --depth 1 --quiet &>/dev/null
+		git reset --hard &>/dev/null
+		git checkout master &>/dev/null
+		git reset --hard master &>/dev/null
+		git pull --rebase --quiet &>/dev/null
+		git reset --hard master &>/dev/null
 		popd >/dev/null
 	fi
 
