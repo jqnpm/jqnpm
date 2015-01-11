@@ -21,6 +21,12 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 
 
 
+## Packages
+
+See the [list of packages in the `jqnpm` wiki](https://github.com/joelpurra/jqnpm/wiki).
+
+
+
 ## Get it
 
 - Clone the repository and add `src/` to your `$PATH`.
