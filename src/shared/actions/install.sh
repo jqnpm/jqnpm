@@ -21,6 +21,7 @@ function installSingle {
 	local packageRoot=$(getLocalPackageRoot)
 	local localDependencyPath="${packageRoot}/${localJqPackageBase}/${dependencyName}"
 
+	[[ -d "$localDependencyPath" ]] && rm -r "$localDependencyPath"
 	mkdir -p "$localDependencyPath"
 
 	# Use `git archive` to copy git content instead of the repository.
