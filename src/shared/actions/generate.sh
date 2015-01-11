@@ -56,6 +56,11 @@ function generate {
 	local oneSentenceDescription="$1"
 	shift
 
+	if packageNameStartsWithLowercaseJqDash "$packageName";
+	then
+		packageName="${packageName:3}"
+	fi
+
 	local fullPackageName="jq-${packageName}"
 	local packageJqAlias=$(echo -nE "$packageName" | dashesToPascalCase)
 

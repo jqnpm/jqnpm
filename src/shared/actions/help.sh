@@ -23,6 +23,6 @@ function help {
 	echo
 	echo "  ${COLOR_WHITE}generate${COLOR_NO_COLOR} <github username> <package name> \"<one sentence to describe the package>\""
 	echo "    Generate a jq/jqnpm package skeleton in a subfolder."
-	echo "    Package name: all lowercase, separate words with a dash '-'. Don't use a 'jq-' prefix."
+	echo "    Package name: all lowercase, separate words with a dash '-'."
 	echo "    Package name example: cool-tool"
 }
