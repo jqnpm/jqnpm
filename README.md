@@ -155,15 +155,13 @@ It's easy to create and publish a package of your own. Share your code!
 1. Tell the world about it!
 
 
-As packages are stored on [github.com](https://github.com/) (by default), an account there is required for `jqnpm`. Because github allows private repositories, you can use `jqnpm` for private packages; this has not been tested yet.
 
-
-
-### Additional features
+## Additional features
 
 - Dependencies are stored in `./.jq/packages/` per package.
 - A local cache in `~/.jq/` stores remote repositories.
 - No *centrally managed* server side package repository is needed to publish your packages - just create a repository on github!
+- As packages are stored on [github.com](https://github.com/) (by default), an account there is required for `jqnpm`. Because github allows private repositories, you can use `jqnpm` for private packages; this has not been tested yet.
 - Can also use bitbucket and other online services, where usernames or organization names act as namespaces.
 
 
