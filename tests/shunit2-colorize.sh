@@ -1,12 +1,13 @@
-# shunit2-colorize, add colors to shUnit2 output.
+# shunit2-colorize. Add colors to shUnit2 output.
 # By Joel Purra, http://joelpurra.com/
 
 # Based on maven-antsy-color by Julian Simpson, "The Build Doctor", http://www.build-doctor.com/
 # https://github.com/builddoctor/maven-antsy-color
-# Julian Simpson thanks: http://blog.blindgaenger.net/colorize_maven_output.html
+# Julian Simpson thanks: Bernd Jünger, http://bjuenger.de/ for http://blog.blindgaenger.net/colorize_maven_output.html
 # Julian Simpson thanks: http://johannes.jakeapp.com/blog/category/fun-with-linux/200901/maven-colorized
 
-# Colorize shUnit2 Output
+
+# Colorize shUnit2 Output.
 function colorizeShUnit2() {
     local BLUE="[0;34m"
     local RED="[0;31m"
@@ -25,6 +26,7 @@ function colorizeShUnit2() {
         -e "s/^\(FAILED\)\( .failures=\)\([[:digit:]]*\)\(.\)/${RED}\1${NO_COLOUR}\2${RED}\3${NO_COLOUR}\4/g" \
         -e "s/^OK$/${LIGHT_GREEN}&${NO_COLOUR}/g"
 }
+
 
 # TODO: separate and enable alias.
 # alias shunit2_uncolored="command shunit2"
