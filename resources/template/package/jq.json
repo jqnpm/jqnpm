@@ -1,0 +1,28 @@
+{
+    "name": "<%=PACKAGE_NAME%>",
+    "version": "<%=DEFAULT_PACKAGE_VERSION%>",
+    "description": "<%=ONE_SENTENCE_DESCRIPTION%>",
+    "homepage": "https://github.com/<%=GITHUB_USERNAME%>/<%=FULL_PACKAGE_NAME%>",
+    "bugs": "https://github.com/<%=GITHUB_USERNAME%>/<%=FULL_PACKAGE_NAME%>/issues",
+    "author": {
+        "name": "<%=FULL_NAME%>",
+        "url": "<%=USER_HOMEPAGE_URL%>"
+    },
+    "main": "./jq/main.jq",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/<%=GITHUB_USERNAME%>/<%=FULL_PACKAGE_NAME%>.git"
+    },
+    "dependencies": {},
+    "engines": {
+        "jq": "^1.5.0",
+        "jqnpm": "^1.0.0"
+    },
+    "licenses": [{
+        "type": "MIT",
+        "url": "http://opensource.org/licenses/MIT"
+    }],
+    "keywords": [
+        "jq-package"
+    ]
+}

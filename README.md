@@ -9,35 +9,28 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 
 ## Features
 
-- Uses only namespaced packages, for example `joelpurra/jq-another-utility`.
-- Uses github.com by default; the example would be cloned from `github.com/joelpurra/jq-another-utility`.
+- Uses only namespaced packages, for example [`joelpurra/jq-stress`](https://github.com/joelpurra/jq-stress).
+- Uses github.com by default; the example package would automatically be cloned from [`github.com/joelpurra/jq-stress`](https://github.com/joelpurra/jq-stress).
 - Uses strict [semantic versioning](http://semver.org/) tags.
-- Run `jqnpm init` to create `jq/main.jq` and `jq.json` with your package metadata, including:
-  - Package name (*defaults to the folder name*).
-  - Version.
-  - Dependencies and their versions.
-  - Compatible `jq` versions.
-  - ([optional](https://github.com/joelpurra/jqnpm/blob/master/BUILDING.md)) Softer metadata like author name and package license.
-- Code meant to only *consume* other packages are also called projects. They have a `jq.json` file as well.
-
-### Additional features
-
-- Dependencies are stored in `./.jq/packages/` per package.
-- A local cache in `~/.jq/` stores remote repositories.
-- No *centrally managed* server side package repository is needed to publish your packages - just create a repository on github!
-- Can also use bitbucket and other online services, where usernames or organization names act as namespaces.
+- Run `jqnpm generate` to autmatically create a package skeleton with:
+  - `jq/main.jq` for your code.
+  - `tests/all.sh` for easy-to-write tests.
+  - `README.md` where you only need to fill in a usage example.
+  - and `jq.json` with your package metadata.
+- Code meant to only *consume* other packages are also called projects. They can use `jqnpm generate` file as well.
 
 
 
 ## Get it
 
 - Clone the repository and add `src/` to your `$PATH`.
-- Requirement: [jq](https://stedolan.github.io/jq/) 1.5rc1+ in your `$PATH`. See the [`stedolan/jq` master branch](https://github.com/stedolan/jq/). Tested with [jq-1.5rc1-1-g157c95b](https://github.com/stedolan/jq/commit/157c95b9889b523a3de7772e85ef9f3f69182c88), which is *not yet fully compatible* with `jqnpm`.
-- Requirement: [bash](https://www.gnu.org/software/bash/) 4+ in your `$PATH`
-- Requirement: [git](http://git-scm.com/)
+- Requirements:
+  - [jq](https://stedolan.github.io/jq/) 1.5rc1+ in your `$PATH`. See the [`stedolan/jq` master branch](https://github.com/stedolan/jq/). Tested with [jq-1.5rc1-1-g157c95b](https://github.com/stedolan/jq/commit/157c95b9889b523a3de7772e85ef9f3f69182c88), which is *not yet fully compatible* with `jqnpm`.
+  - [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://code.google.com/p/shunit2/.
 
 ```
-git clone --recursive git://github.com/joelpurra/jqnpm.git
+git clone git://github.com/joelpurra/jqnpm.git
+export PATH="$PATH:$PWD/jqnpm/src"
 ```
 
 
@@ -52,72 +45,78 @@ Also see each source file, but don't expect much documentation yet.
 ```text
 jqnpm <action> [options]
 
-Actions
-  help                      Show this help.
-  initialize                Create default jq.json and jq/main.jq files.
-  fetch [package]           Preload package cache from remote server.
-  install [package]         Install/add jq.json dependencies to the current directory.
-  execute [flags for jq]    Run normal jq with dependencies. **This is a workaround until plain jq is up to speed.**
+Actions:
+  help
+    Show this help.
+
+  initialize
+    Create default jq.json and jq/main.jq files.
+
+  fetch [package]
+    Preload package cache from remote server.
+
+  install [package]
+    Install/add jq.json dependencies to the current directory.
+
+  execute [flags for jq]
+    Run normal jq with dependencies. **This is a workaround until plain jq is up to speed.**
+
+  generate <github username> <package name> "<one sentence to describe the package>"
+    Generate a jq/jqnpm package skeleton in a subfolder.
+    Package name: all lowercase, separate words with a dash '-'.
+    Package name example: cool-tool
 ```
 
 
 #### Example command line usage
 
 ```shell
-cd my-project/                                    # Your project.
-jqnpm init                                           # (optional) Create jq.json and jq/main.jq.
-jqnpm install joelpurra/jq-another-utility           # Also creates a minimal jq.json.
+cd my-project/                        # Your project.
+jqnpm init                            # (optional) Create jq.json and jq/main.jq.
+jqnpm install joelpurra/jq-stress     # Also creates a minimal jq.json.
 
 # 'jqnpm execute' is a wrapper around jq, which also loads dependencies managed by jqnpm.
 # **'jqnpm execute' is a workaround until plain jq is up to speed.**
-# Use the way you would use jq, including flags:
+# Write code in 'jq/main.jq' and use the way you would use jq, including flags:
 # Example A:
-echo '{ "hello": "world" }' | jqnpm execute '.hello'
+echo '{ "hello": "world" }' | jqnpm execute # Will execute code in 'jq/main.jq'
 
 # Example B:
-jqnpm execute -n '"No input necessary"'
+jqnpm execute -n # Will execute code in 'jq/main.jq'
 
 # Example C:
-<"input.json" jqnpm execute --slurp >"output.json"
+<"input.json" jqnpm execute --slurp >"output.json"  # Will execute code in 'jq/main.jq'
 ```
 
-### `jq.json`
-
-Contains all metadata for the package/project. Keeps code files clean! See also the [normal `jq.json` example](https://github.com/joelpurra/jqnpm/edit/master/BUILDING.md).
-
-
-Shows example dependency `joelpurra/jq-another-utility` with version range `^1.0.0` [resolving to](https://github.com/npm/node-semver#caret-ranges-123-025-004) `>=1.0.0 <2.0.0`.
-
-```json
-{
-    "name": "one-single-utility",
-    "version": "0.1.0",
-    "main": "./jq/main.jq",
-    "dependencies": {
-        "joelpurra/jq-another-utility": "^1.0.0"
-    },
-    "engines": {
-        "jq": "^1.5.0",
-        "jqnpm": "^1.0.0"
-    }
-}
-```
 
 ### `jq/main.jq`
 
 Example usage combining two other packages.
 
 ```jq
-import "joelpurra/jq-another-utility" as anotherUtility;
-import "anotheruser/jq-url-splitting" as urlSplitting;
+import "joelpurra/jq-zeros" as Zeros;
+import "joelpurra/jq-dry" as DRY;
 
-def prepareAndSplit:
-    anotherUtility::doSomething | urlSplitting::split;
+def fib($n):
+    [ 0, 1 ]
+    | DRY::repeat(
+        $n;
+        [
+            .[1],
+            (
+                .[0]
+                + .[1]
+            )
+        ]
+    )
+    | .[0];
 
-{
-    "my-url-parts": prepareAndSplit
-}
+# Get the eighth Fibonacci number, pad it to four (integer) digits.
+fib(8)
+| Zeros::pad(4; 0)
 ```
+
+
 
 ## Creating a package
 
@@ -139,14 +138,27 @@ It's easy to create and publish a package of your own. Share your code!
 1. Create a [new github repository](https://github.com/new):
   - Choose a name starting with `jq-`, similar to `jq-good-tool`.
   - Choose the MIT license if you don't have any other preference.
-1. In the repository on your computer, create:
-  - `jq.json` by [filling in the template](https://github.com/joelpurra/jqnpm/blob/master/BUILDING.md#larger-jqjson-example).
-  - `.gitignore` and add the line `.jq/` to it.
-  - The folder `jq/` with the file `jq/main.jq` and write your jq script.
-1. Push the code to github and tell the world about it!
+1. On your computer, run `jqnpm generate <github username> <package name> \"<one sentence to describe the package>\"`:
+  - `<github username>` should be obvious.
+  - `<package name>` is the same as the git hub repository you just created, for example `jq-good-tool`.
+  - `\"<one sentence to describe the package>\"` is something snappy, like "This tool solves the worlds problems and can, contrary to a knife, only be used for good!"
+1. Push the code to github:
+  - `git commit`
+  - `git push`
+  - `git tag -a v0.1.0 -m v0.1.0 && git push origin v0.1.0"` (assuming your package version is `0.1.0`.)
+1. Tell the world about it!
 
 
 As packages are stored on [github.com](https://github.com/) (by default), an account there is required for `jqnpm`. Because github allows private repositories, you can use `jqnpm` for private packages; this has not been tested yet.
+
+
+
+### Additional features
+
+- Dependencies are stored in `./.jq/packages/` per package.
+- A local cache in `~/.jq/` stores remote repositories.
+- No *centrally managed* server side package repository is needed to publish your packages - just create a repository on github!
+- Can also use bitbucket and other online services, where usernames or organization names act as namespaces.
 
 
 
