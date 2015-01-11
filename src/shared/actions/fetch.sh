@@ -35,6 +35,11 @@ function fetchSingle {
 		git pull --depth 1 --quiet &>/dev/null
 		popd >/dev/null
 	fi
+
+	# Fetch recursively.
+	pushd "$cache" >/dev/null
+	"$jqnpmSourceFile" fetch
+	popd >/dev/null
 }
 
 function fetchSingleManually {
@@ -72,13 +77,6 @@ function fetchFromJqJson {
 		local dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
 
 		fetchSingle "${dependencyName}@${dependencySemverRange}"
-
-		local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
-
-		# Fetch recursively.
-		pushd "$cache" >/dev/null
-		"$jqnpmSourceFile" fetch
-		popd >/dev/null
 	done
 }
 

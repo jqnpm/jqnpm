@@ -27,15 +27,20 @@ function installSingle {
 	pushd "$cache" >/dev/null
 	# TODO: use the right tag.
 	git archive HEAD | tar x -C "$localDependencyPath"
+	popd >/dev/null
 
 	# Make this installed package an unambiguous package root of its own.
 	mkdir -p "${localDependencyPath}/${packageMetadataDirectoryName}"
-	popd >/dev/null
 
 	pushd "$localDependencyPath" >/dev/null
 	# TODO DEBUG REMOVE: work around limitations in jq's `import` resolving algorithm.
 	# Current jq assumes the main package path for package P is `P/basename(P).jq`.
 	jqMainPathWorkaroundInstall
+	popd >/dev/null
+
+	# Install recursively.
+	pushd "$localDependencyPath" >/dev/null
+	"$jqnpmSourceFile" install
 	popd >/dev/null
 }
 
@@ -80,13 +85,6 @@ function installFromJqJson {
 		local dependencySemverRange=$(getDirectDependencyVersion "$dependencyName")
 
 		installSingle "${dependencyName}@${dependencySemverRange}"
-		local packageRoot=$(getLocalPackageRoot)
-		local localDependencyPath="${packageRoot}/${localJqPackageBase}/${dependencyName}"
-
-		# Install recursively.
-		pushd "$localDependencyPath" >/dev/null
-		"$jqnpmSourceFile" install
-		popd >/dev/null
 	done
 }
 
