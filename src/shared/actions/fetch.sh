@@ -40,6 +40,10 @@ function fetchSingle {
 		popd >/dev/null
 	fi
 
+	pushd "$cache" >/dev/null
+	debugInPackageIfAvailable 3 "Current package commit hash is '$(getHEADCommitHash)' in '$(echo -nE "$cache" | replaceHomeWithTilde)'"
+	popd >/dev/null
+
 	# Fetch recursively.
 	pushd "$cache" >/dev/null
 	"$jqnpmSourceFile" fetch

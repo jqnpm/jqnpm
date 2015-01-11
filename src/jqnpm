@@ -11,6 +11,7 @@ source "${BASH_SOURCE%/*}/shared/functions/debug.sh"
 source "${BASH_SOURCE%/*}/shared/functions/basic.sh"
 source "${BASH_SOURCE%/*}/shared/functions/filesystem-temp.sh"
 source "${BASH_SOURCE%/*}/shared/functions/configuration.sh"
+source "${BASH_SOURCE%/*}/shared/functions/git.sh"
 
 
 # Metadata
