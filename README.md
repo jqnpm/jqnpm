@@ -31,7 +31,7 @@ See the [list of packages in the `jqnpm` wiki](https://github.com/joelpurra/jqnp
 
 - Clone the repository and add `src/` to your `$PATH`.
 - Requirements:
-  - [jq](https://stedolan.github.io/jq/) 1.5rc1+ in your `$PATH`. See the [`stedolan/jq` master branch](https://github.com/stedolan/jq/). Tested with [jq-1.5rc1 (902aa39)](https://github.com/stedolan/jq/releases/tag/jq-1.5rc1), which is *not yet fully compatible* with `jqnpm`.
+  - [jq](https://stedolan.github.io/jq/) 1.5rc1+ in your `$PATH`. See the [`stedolan/jq` master branch](https://github.com/stedolan/jq/). Tested with [jq-1.5rc1-4-g6e7cf81 (6e7cf81)](https://github.com/stedolan/jq/commit/6e7cf81d74f98c3c467371172906d9009009f8a0), which is not yet *fully* compatible with `jqnpm`.
   - [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://code.google.com/p/shunit2/).
 
 ```
