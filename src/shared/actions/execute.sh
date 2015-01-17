@@ -43,32 +43,14 @@ function execute {
 		fi
 	fi
 
-	if hasPackageMetadataFile && hasDirectDependencies;
+	if [[ "$usePackageMainJq" == "true" ]];
 	then
-		if [[ "$usePackageMainJq" == "true" ]];
-		then
-			# TODO: don't *completely* redefine the orginal library path?
-			# The default contains useful, and therefore possibly widespread, defaults.
-			# The defaults are also system-dependent.
-
-			# Take care when editing the follow line, so debugging information and actual command stay in sync.
-			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" -f "$mainPath" "$@"
-			jq -L "$localJqPackageBase" -f "$mainPath" "$@"
-		else
-			# Take care when editing the follow line, so debugging information and actual command stay in sync.
-			debugInPackageIfAvailable 5 "(executing jq)" jq -L "$localJqPackageBase" "$@"
-			jq -L "$localJqPackageBase" "$@"
-		fi
+		# Take care when editing the follow line, so debugging information and actual command stay in sync.
+		debugInPackageIfAvailable 5 "(executing jq)" jq -f "$mainPath" "$@"
+		jq -f "$mainPath" "$@"
 	else
-		if [[ "$usePackageMainJq" == "true" ]];
-		then
-			# Take care when editing the follow line, so debugging information and actual command stay in sync.
-			debugInPackageIfAvailable 5 "(executing jq)" jq -f "$mainPath" "$@"
-			jq -f "$mainPath" "$@"
-		else
-			# Take care when editing the follow line, so debugging information and actual command stay in sync.
-			debugInPackageIfAvailable 5 "(executing jq)" jq "$@"
-			jq "$@"
-		fi
+		# Take care when editing the follow line, so debugging information and actual command stay in sync.
+		debugInPackageIfAvailable 5 "(executing jq)" jq "$@"
+		jq "$@"
 	fi
 }
