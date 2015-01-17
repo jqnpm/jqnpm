@@ -1,18 +1,7 @@
 #!/usr/bin/env bash
 
-function resolveDirectory {
-	(cd -- "$1"; echo -nE "$PWD")
-}
+source "${BASH_SOURCE%/*}/shared-functions.sh"
 
-# Isn't there a better way to do this? String wise ./ and ../ squisher that doesn't re-parse directories/links?
-function resolvePath {
-	if [[ -d "$1" ]];
-	then
-		resolveDirectory "$1"
-	else
-		echo "$(resolveDirectory "$(dirname "$1")")/$(basename -a "$1")"
-	fi
-}
 
 function addJqnpmDirectoryToPath {
 	# Make sure we're running the right `jqnpm`.
