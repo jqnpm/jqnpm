@@ -61,7 +61,7 @@ Remotes and cache can be changed for testing by setting some environment variabl
 Default values
 
 ```bash
-config_default_packagesCache="$HOME/.jq/packages"
+config_default_packagesCache="$HOME/.jq/cache"
 config_default_remoteBase="git://github.com"
 config_default_remoteSuffix=".git"
 ```
