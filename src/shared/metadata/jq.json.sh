@@ -40,7 +40,7 @@ function createMinimalJqJsonWithPackageName {
 		packageName="${packageName:3}"
 		debugInPackageIfAvailable 3 "folder (package) name prefix 'jq-' removed for the package name: '${packageName}'"
 	else
-		debugInPackageIfAvailable 2 "folder (package) name does not start with 'jq-': '${packageName}'"
+		debugInPackageIfAvailable 3 "folder (package) name does not start with 'jq-': '${packageName}'"
 	fi
 
 	[[ -z "$packageName" ]] && die 200 "could not create minimal jq.json file due to an empty package name."
