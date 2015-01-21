@@ -46,7 +46,7 @@ function fetchSingle {
 
 	# Fetch recursively.
 	pushd "$cache" >/dev/null
-	"$jqnpmSourceFile" fetch
+	"$JQNPM_SOURCE" fetch
 	popd >/dev/null
 }
 

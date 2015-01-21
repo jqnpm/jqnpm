@@ -31,7 +31,7 @@ function installSingle {
 
 	# Make sure the remote repository is in the local cache.
 	# TODO: implement --no-fetch.
-	"$jqnpmSourceFile" fetch "${dependencyName}@${dependencySemverRange}"
+	"$JQNPM_SOURCE" fetch "${dependencyName}@${dependencySemverRange}"
 
 	debugInPackageIfAvailable 4 "(installing) dependency '${dependencyName}'@'${dependencySemverRange}'"
 
@@ -67,7 +67,7 @@ function installSingle {
 
 	# Install recursively.
 	pushd "$installTarget" >/dev/null
-	"$jqnpmSourceFile" install
+	"$JQNPM_SOURCE" install
 	popd >/dev/null
 }
 

@@ -1,42 +1,65 @@
 #!/usr/bin/env bash
 set -e
 
+function crossplatformReadlink {
+	# http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
+	# http://stackoverflow.com/a/1116890
+	TARGET_FILE="$1"
+
+	cd `dirname $TARGET_FILE`
+	TARGET_FILE=`basename $TARGET_FILE`
+
+	# Iterate down a (possible) chain of symlinks
+	while [ -L "$TARGET_FILE" ]
+	do
+	    TARGET_FILE=`readlink $TARGET_FILE`
+	    cd `dirname $TARGET_FILE`
+	    TARGET_FILE=`basename $TARGET_FILE`
+	done
+
+	# Compute the canonicalized name by finding the physical path 
+	# for the directory we're in and appending the target file.
+	PHYS_DIR=`pwd -P`
+	RESULT=$PHYS_DIR/$TARGET_FILE
+	echo "$RESULT"
+}
+
 # Must be executed in this file.
-# Used to recursively call jqnpm.
-jqnpmSourceFile="${BASH_SOURCE}"
+# Used to recursively call jqnpm and to find files to `source`.
+JQNPM_SOURCE=$(crossplatformReadlink "$BASH_SOURCE")
 
 # Helper functions
 # TODO: write tests per function.
-source "${BASH_SOURCE%/*}/shared/functions/debug.sh"
-source "${BASH_SOURCE%/*}/shared/functions/basic.sh"
-source "${BASH_SOURCE%/*}/shared/functions/filesystem-temp.sh"
-source "${BASH_SOURCE%/*}/shared/functions/configuration.sh"
-source "${BASH_SOURCE%/*}/shared/functions/git.sh"
+source "${JQNPM_SOURCE%/*}/shared/functions/debug.sh"
+source "${JQNPM_SOURCE%/*}/shared/functions/basic.sh"
+source "${JQNPM_SOURCE%/*}/shared/functions/filesystem-temp.sh"
+source "${JQNPM_SOURCE%/*}/shared/functions/configuration.sh"
+source "${JQNPM_SOURCE%/*}/shared/functions/git.sh"
 
 
 # Metadata
-source "${BASH_SOURCE%/*}/shared/metadata/package-root.sh"
-source "${BASH_SOURCE%/*}/shared/metadata/jq.json.sh"
-source "${BASH_SOURCE%/*}/shared/metadata/main.jq.sh"
-source "${BASH_SOURCE%/*}/shared/metadata/validation.sh"
-source "${BASH_SOURCE%/*}/shared/metadata/read.sh"
-source "${BASH_SOURCE%/*}/shared/metadata/update.sh"
+source "${JQNPM_SOURCE%/*}/shared/metadata/package-root.sh"
+source "${JQNPM_SOURCE%/*}/shared/metadata/jq.json.sh"
+source "${JQNPM_SOURCE%/*}/shared/metadata/main.jq.sh"
+source "${JQNPM_SOURCE%/*}/shared/metadata/validation.sh"
+source "${JQNPM_SOURCE%/*}/shared/metadata/read.sh"
+source "${JQNPM_SOURCE%/*}/shared/metadata/update.sh"
 
 
 # Workarounds
 # TODO: remove when jq is confirmed to fully support whatever workarounds there are.
-source "${BASH_SOURCE%/*}/shared/functions/workarounds-jq.sh"
+source "${JQNPM_SOURCE%/*}/shared/functions/workarounds-jq.sh"
 
 
 # Actions
 # TODO: implement other actions.
 # TODO: write tests per function.
-source "${BASH_SOURCE%/*}/shared/actions/help.sh"
-source "${BASH_SOURCE%/*}/shared/actions/initialize.sh"
-source "${BASH_SOURCE%/*}/shared/actions/fetch.sh"
-source "${BASH_SOURCE%/*}/shared/actions/install.sh"
-source "${BASH_SOURCE%/*}/shared/actions/execute.sh"
-source "${BASH_SOURCE%/*}/shared/actions/generate.sh"
+source "${JQNPM_SOURCE%/*}/shared/actions/help.sh"
+source "${JQNPM_SOURCE%/*}/shared/actions/initialize.sh"
+source "${JQNPM_SOURCE%/*}/shared/actions/fetch.sh"
+source "${JQNPM_SOURCE%/*}/shared/actions/install.sh"
+source "${JQNPM_SOURCE%/*}/shared/actions/execute.sh"
+source "${JQNPM_SOURCE%/*}/shared/actions/generate.sh"
 
 
 ### Always executed
