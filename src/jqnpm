@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+if (( $(id -u) == 0 ));
+then
+   echo -E "jqnpm: cannot be executed with root privileges." 1>&2
+   exit 1
+fi
+
 function crossplatformReadlink {
 	# http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
 	# http://stackoverflow.com/a/1116890
