@@ -1,12 +1,33 @@
 function installSingle {
-	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 && "$#" != 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+
+	local installGlobal="false"
+	if (( "$#" == "1" )) && [[ "$1" == "--global" || "$1" == "-g" ]];
+	then
+		die 100 "cannot install local project globally"
+	elif (( "$#" == "2" ));
+	then
+		if [[ "$1" == "--global" || "$1" == "-g" ]];
+		then
+			installGlobal="true"
+			shift
+		else
+			die 100 "unknown combination of arguments '$@' in '$FUNCNAME'"
+		fi
+	fi
+
 	IFS='@' read -ra nameAndVersion <<< "$1"
 	shift
 
 	local dependencyName="${nameAndVersion[0]}"
 	local dependencySemverRange="${nameAndVersion[1]}"
 
-	debugInPackageIfAvailable 5 "(installing single) '${dependencyName}@${dependencySemverRange}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
+	if [[ "$installGlobal" == "true" ]];
+	then
+		debugInPackageIfAvailable 5 "(installing single) '${dependencyName}@${dependencySemverRange}' globally"
+	else
+		debugInPackageIfAvailable 5 "(installing single) '${dependencyName}@${dependencySemverRange}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
+	fi
 
 	# Make sure the remote repository is in the local cache.
 	# TODO: implement --no-fetch.
@@ -16,37 +37,51 @@ function installSingle {
 
 	local cache="${JQNPM_PACKAGES_CACHE:-$config_default_packagesCache}/${dependencyName}"
 
-	createPackageRootIfNecessary
+	local installTarget
 
-	local packageRoot=$(getLocalPackageRoot)
-	local localDependencyPath="${packageRoot}/${localJqPackageBase}/${dependencyName}"
+	if [[ "$installGlobal" == "true" ]];
+	then
+		local globalDependencyPath="${globalJqPackageBase}/${dependencyName}"
+		installTarget="$globalDependencyPath"
+	else
+		createPackageRootIfNecessary
 
-	[[ -d "$localDependencyPath" ]] && rm -r "$localDependencyPath"
-	mkdir -p "$localDependencyPath"
+		local packageRoot=$(getLocalPackageRoot)
+		local localDependencyPath="${packageRoot}/${localJqPackageBase}/${dependencyName}"
+		installTarget="$localDependencyPath"
+	fi
+
+	debugInPackageIfAvailable 5 "(installing single) '${dependencyName}@${dependencySemverRange}' target: $(echo -nE "$installTarget" | replaceHomeWithTilde)"
+
+	[[ -d "$installTarget" ]] && rm -r "$installTarget"
+	mkdir -p "$installTarget"
 
 	# Use `git archive` to copy git content instead of the repository.
 	pushd "$cache" >/dev/null
 	# TODO: use the right tag.
-	git archive HEAD | tar x -C "$localDependencyPath"
+	git archive HEAD | tar x -C "$installTarget"
 	popd >/dev/null
 
 	# Make this installed package an unambiguous package root of its own.
-	mkdir -p "${localDependencyPath}/${packageMetadataDirectoryName}"
+	mkdir -p "${installTarget}/${packageMetadataDirectoryName}"
 
 	# Install recursively.
-	pushd "$localDependencyPath" >/dev/null
+	pushd "$installTarget" >/dev/null
 	"$jqnpmSourceFile" install
 	popd >/dev/null
 }
 
 function installSingleManually {
-	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 && "$#" != 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	debugInPackageIfAvailable 4 "(installing manually) '${1}' starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
-	installSingle "$1"
+	installSingle "$@"
 
-	# TODO: if semver range is empty, extract most recent dependency version, use it as the single '=1.2.3' range when saving.
-	addOrUpdateDependencyAndRangeInJqJson "$1"
+	if [[ "$1" != "--global" && "$1" != "-g" ]];
+	then
+		# TODO: if semver range is empty, extract most recent dependency version, use it as the single '=1.2.3' range when saving.
+		addOrUpdateDependencyAndRangeInJqJson "$1"
+	fi
 }
 
 function installFromJqJson {
@@ -84,11 +119,12 @@ function installFromJqJson {
 }
 
 function install {
-	(( "$#" > 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
-	if [[ -z "$1" ]];
+	(( "$#" > 2 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+
+	if (( "$#" == 0 ));
 	then
 		installFromJqJson
 	else
-		installSingleManually "$1"
+		installSingleManually "$@"
 	fi
 }

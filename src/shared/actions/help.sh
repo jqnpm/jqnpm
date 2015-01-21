@@ -14,15 +14,18 @@ function help {
 	echo
 	echo "  ${COLOR_WHITE}fetch${COLOR_NO_COLOR} [package]"
 	echo "    Preload package cache from remote server."
+	echo "      package: a package name such as 'joelpurra/jq-stress'"
 	echo
-	echo "  ${COLOR_WHITE}install${COLOR_NO_COLOR} [package]"
+	echo "  ${COLOR_WHITE}install${COLOR_NO_COLOR} [[--global|-g] package]"
 	echo "    Install/add jq.json dependencies to the current directory."
+	echo "      package: a package name such as 'joelpurra/jq-stress'"
+	echo "      --global: use to install to '$(echo -nE "$globalJqPackageBase" | replaceHomeWithTilde)' instead of '${localJqPackageBase}'"
 	echo
 	echo "  ${COLOR_WHITE}execute${COLOR_NO_COLOR} [flags for jq]"
 	echo "    Run normal jq with dependencies. **This is a workaround until plain jq is up to speed.**"
 	echo
 	echo "  ${COLOR_WHITE}generate${COLOR_NO_COLOR} <github username> <package name> \"<one sentence to describe the package>\""
 	echo "    Generate a jq/jqnpm package skeleton in a subfolder."
-	echo "    Package name: all lowercase, separate words with a dash '-'."
-	echo "    Package name example: cool-tool"
+	echo "      Package name: all lowercase, separate words with a dash '-'."
+	echo "      Package name example: cool-tool"
 }

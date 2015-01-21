@@ -82,6 +82,7 @@ function initJqnpm {
 	packageMetadataFilename="jq.json"
 	packageMetadataDirectoryName=".jq"
 	localJqPackageBase="${packageMetadataDirectoryName}/packages"
+	globalJqPackageBase="${HOME}/${localJqPackageBase}"
 	defaultPackageJqFile="jq/main.jq"
 }
 
