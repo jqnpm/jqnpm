@@ -13,7 +13,7 @@ function getBestNewMainJqPath {
 	return 0;
 }
 
-function createMinmalMainJqIfNecessary {
+function createMinimalMainJqIfNecessary {
 	if ! hasValidPackageMainJq;
 	then
 		local bestNewMainJqPath=$(getBestNewMainJqPath)
