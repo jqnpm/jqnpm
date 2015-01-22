@@ -6,6 +6,13 @@
 
 A package manager built for the command-line JSON processor [`jq`](https://stedolan.github.io/jq/) as an example implementation. This is experimental software. [Want to contribute?](https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md)
 
+<p align="center">
+  <a href="https://github.com/joelpurra/jqnpm/">
+    <img src="https://cloud.githubusercontent.com/assets/1398544/5852881/aaefa09c-a21d-11e4-9e7b-7c2c5574e0b6.gif" alt="jqnpm in action" border="0" />
+  </a>
+</p>
+
+
 
 ## Features
 
