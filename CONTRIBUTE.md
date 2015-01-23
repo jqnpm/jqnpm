@@ -2,9 +2,9 @@
 
 This is experimental software, so feedback is most appreciated!
 
-- [Open an issue for your problem](https://github.com/joelpurra/jqnpm/issues).
-- [Open an issue for your suggestion](https://github.com/joelpurra/jqnpm/issues).
-- [Learn how to contribute code to `jqnpm`](https://github.com/joelpurra/jqnpm/blob/master/BUILDING.md).
+- You can [open an issue for your problem or suggestion](https://github.com/joelpurra/jqnpm/issues).
+- Learn how to [create your own package](https://github.com/joelpurra/jqnpm#creating-a-package).
+- Learn how to [contribute code to `jqnpm`](https://github.com/joelpurra/jqnpm/blob/master/BUILDING.md).
 
 
 
@@ -14,6 +14,16 @@ This is experimental software, so feedback is most appreciated!
   - `jq` is unaware of each dependency's subdirectory.
   - `jqnpm` uses only `./jq/main.jq` at the moment. The `main` responsibility might end up in `jq` instead.
 - Packages are not recursively resolved during execution. This is due to relative module paths starting with `./` only being resolved against the *initial* `jq/main.jq`, not subsequently called dependencies.
+
+
+
+## Additional features
+
+- Dependencies are stored in `./.jq/packages/` per package.
+- A local cache in `~/.jq/` stores remote repositories.
+- No *centrally managed* server side package repository is needed to publish your packages - just create a repository on github!
+- As packages are stored on [github.com](https://github.com/) (by default), an account there is required for `jqnpm`. Because github allows private repositories, you can use `jqnpm` for private packages; this has not been tested yet.
+- Can also use bitbucket and other online services, where usernames or organization names act as namespaces.
 
 
 
