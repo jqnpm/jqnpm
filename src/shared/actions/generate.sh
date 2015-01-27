@@ -83,7 +83,7 @@ function generate {
 
 	local pluginOutputBase="$PWD"
 	local pluginOutputPath="${pluginOutputBase}/${fullPackageName}"
-	local pluginInputPath="${JQNPM_SOURCE%/*}/../../../resources/template/package"
+	local pluginInputPath="${JQNPM_SOURCE%/*}/../resources/template/package"
 
 
 	debug 3 "Creating output directory: '$(echo -nE "$pluginOutputPath" | replaceHomeWithTilde)'"
