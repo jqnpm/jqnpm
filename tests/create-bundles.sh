@@ -74,7 +74,7 @@ function createBundle {
 			cp -vrX "$sourcePath"/* .
 			git add .
 			git commit --quiet -m "Bundle contents"
-			git push --quiet
+			git push --quiet "origin" "master"
 		popd >/dev/null
 
 		# Create a bundle from the origin repository.
