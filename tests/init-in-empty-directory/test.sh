@@ -35,11 +35,12 @@ function testInitGoodWithPrefix () {
 	assertFalse "jq.json doesn't exist" "[[ -s 'good-local-project-without-jq-prefix/jq.json' ]]"
 
 	pushd "good-local-project-without-jq-prefix" >/dev/null
-	local result=$(jqnpm init 2>&1)
+	# Setting the jqnpm debug level as the check below looks for an information message.
+	local result=$(JQNPM_DEBUG_LEVEL=3 jqnpm init 2>&1)
 	popd >/dev/null
 
 	assertTrue "jq.json has package name same as this folder" "[[ $(<"good-local-project-without-jq-prefix/jq.json" jq '.name') == '"good-local-project-without-jq-prefix"' ]]"
-	assertTrue "Warning about no jq- prefix" "[[ \"${result}\" =~ not.*'jq-' ]]"
+	assertTrue "Information message about no jq- prefix" "[[ \"${result}\" =~ not.*'jq-' ]]"
 }
 
 function singleJqInitWithBadFolderName () {
