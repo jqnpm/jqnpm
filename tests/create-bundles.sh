@@ -71,7 +71,11 @@ function createBundle {
 		git clone --quiet "$name" "$normalName" &>/dev/null
 
 		pushd "$normalName" >/dev/null
-			cp -vrX "$sourcePath"/* .
+			if [[ "$OSTYPE" == "darwin"* ]]; then
+				cp -vrX "$sourcePath"/* .
+			else
+				cp -vr "$sourcePath"/* .
+			fi
 			git add .
 			git commit --quiet -m "Bundle contents"
 			git push --quiet "origin" "master"
