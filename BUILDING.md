@@ -6,7 +6,7 @@ This is experimental software, so [feedback is most appreciated](https://github.
 
 ## Additional development requirements
 
-- [shUnit2](https://shunit2.googlecode.com/) 2.1.x+ in your `$PATH`.
+- [shUnit2](https://github.com/kward/shunit2) 2.1.x+ in your `$PATH`.
 
 
 
