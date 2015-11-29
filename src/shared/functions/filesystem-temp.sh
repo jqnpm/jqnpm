@@ -3,7 +3,7 @@ function createTempFileDirectoryIfNecessary {
 	then
 		local base=$(basename "$JQNPM_SOURCE")
 
-		echo -nE $(mktemp -d "${TMPDIR:-TMP}${base}.XXXXXX")
+		echo -nE $(mktemp -d "${base}.XXXXXX")
 	fi
 }
 

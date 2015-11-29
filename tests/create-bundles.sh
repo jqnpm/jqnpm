@@ -24,7 +24,7 @@ function createTempFileDirectoryIfNecessary {
 	then
 		local base=$(basename "$BASH_SOURCE")
 
-		internalTmpDir=$(mktemp -d "${TMPDIR:-TMP}${base}.XXXXXX")
+		internalTmpDir=$(mktemp -d "${base}.XXXXXX")
 	fi
 }
 
