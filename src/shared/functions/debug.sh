@@ -31,6 +31,9 @@ function getMessageLevelName {
 		5)
 			echo -nE 'VRBO'
 			;;
+		6)
+			echo -nE 'TRCE'
+			;;
 		*)
 			echo -nE 'OMG!'
 			;;

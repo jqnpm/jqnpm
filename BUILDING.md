@@ -37,6 +37,7 @@ Set the `JQNPM_DEBUG_LEVEL` in your shell to get some debugging output.
 - `3` information
 - `4` debug
 - `5` verbose
+- `6` trace
 
 
 

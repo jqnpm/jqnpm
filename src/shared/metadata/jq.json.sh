@@ -32,7 +32,7 @@ function createMinimalJqJsonWithPackageName {
 
 	if ! isPackageNameValid "$packageName";
 	then
-		die 200 "could not create minimal jq.json file due to malformed package name. The package name is based on the name of the current folder, by default. Because packages are (usually) made public, naming is important. Start the folder name with 'jq-' (recommended) and use only lowercase a-z, 0-9 and dashes: 'jq-good-name'. The 'jq-' part will be stripped in the package name, as it is already known to 'jq.json' that it is a jq package."
+		die 200 "could not create minimal jq.json file due to malformed package name. The package name is based on the name of the current folder, by default. Because packages are (usually) made public, naming is important. Start the folder name with 'jq-' (recommended) and use only lowercase a-z, 0-9 and dashes: 'jq-good-name'. The 'jq-' part will be stripped in the package name, as it is already known to '${packageMetadataFilename}' that it is a jq package."
 	fi
 
 	if packageNameStartsWithLowercaseJqDash "$packageName";
@@ -65,21 +65,24 @@ function createMinimalJqJsonIfNecessary {
 
 function getNearestJqJsonDirectory {
 	local originalPWD="$PWD"
+	local previousPWD="NON-MATCH"
 
 	(
 		until [[ -s "$packageMetadataFilename" ]];
 		do
-			if [[ "$PWD" == "/" ]];
+			if [[ "$PWD" == "$previousPWD" ]];
 			then
-				debug 5 "could not find nearest 'jq.json' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
+				debug 5 "could not find nearest '${packageMetadataFilename}' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
 
 				return 1;
 			fi
 
+			previousPWD="$PWD"
+
 			cd ..
 		done
 
-		debug 7 "found nearest directory with 'jq.json' '$(echo -nE "$PWD" | replaceHomeWithTilde)' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
+		debug 6 "found nearest directory with '${packageMetadataFilename}' '$(echo -nE "$PWD" | replaceHomeWithTilde)' starting in '$(echo -nE "$originalPWD" | replaceHomeWithTilde)'"
 
 		echo -nE "$PWD"
 	)
@@ -88,13 +91,13 @@ function getNearestJqJsonDirectory {
 }
 
 function getNearestJqJson {
-	local nearestJqJsonDirectory=$(getNearestJqJsonDirectory 2>/dev/null)
+	local nearestJqJsonDirectory=$(getNearestJqJsonDirectory)
 
 	if [[ ! -z "$nearestJqJsonDirectory" ]];
 	then
 		local nearestJqJson="${nearestJqJsonDirectory}/${packageMetadataFilename}"
 
-		debug 6 "found nearest 'jq.json' '$(echo -nE "$nearestJqJson" | replaceHomeWithTilde)' starting in '$(echo -nE "$PWD" | replaceHomeWithTilde)'"
+		debug 6 "found nearest '${packageMetadataFilename}' '$(echo -nE "$nearestJqJson" | replaceHomeWithTilde)' starting in '$(echo -nE "$PWD" | replaceHomeWithTilde)'"
 
 		echo -nE "$nearestJqJson"
 
@@ -105,7 +108,7 @@ function getNearestJqJson {
 }
 
 function hasPackageMetadataFile {
-	if [[ -z $(getNearestJqJson 2>/dev/null) ]];
+	if [[ -z $(getNearestJqJson) ]];
 	then
 		return 1;
 	fi
