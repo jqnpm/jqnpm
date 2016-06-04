@@ -21,7 +21,7 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 
 ## Installation
 
-On Mac with [Homebrew](http://brew.sh/):
+**On Mac with [Homebrew](http://brew.sh/)**
 
 ```bash
 brew tap joelpurra/joelpurra
@@ -29,18 +29,25 @@ brew install jq
 brew install jqnpm
 ```
 
-On other systems:
+**On other systems**
 
 - Clone or download, then symlink `src/jqnpm`. There is no build step.
 - Requirements: [jq](https://stedolan.github.io/jq/) 1.5+, [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://code.google.com/p/shunit2/).
 
 
-Compatibility:
+**Compatibility with `jq`**
 
-- Tested with jq-1.5, which is [not yet *fully* compatible with `jqnpm`](https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md#requirements-for-the-jq-binary).
+- `jqnpm` was tested with jq-1.5, which is [not yet *fully* compatible with `jqnpm`](https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md#requirements-for-the-jq-binary).
 - For example deep package resolution doesn't work with plain `jq`. Without this feature, every dependency has to be installed in the package root.
 - See also the [`jqnpm`'s `package-root` fork of `jq`](https://github.com/joelpurra/jq/tree/package-root), which fixes these issues.
+- The easiest way to get both is to use `brew` to unlink both `jq` and `jqnpm`, then install the `jqnpm --devel` version which installs the patched versions.
 
+```bash
+brew tap joelpurra/joelpurra
+brew unlink jqnpm
+brew unlink jq
+brew install jqnpm --devel
+```
 
 
 ## Usage
