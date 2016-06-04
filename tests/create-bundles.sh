@@ -119,7 +119,7 @@ function createBundles {
 
 			createBundle "$name" "$packageDirectory" "${outputDirectory}/"
 		done
-	done 
+	done
 }
 
 pushd "${BASH_SOURCE%/*}" >/dev/null

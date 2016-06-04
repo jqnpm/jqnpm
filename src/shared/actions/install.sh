@@ -95,7 +95,7 @@ function installFromJqJson {
 	# ./jq/packages/$dependencyName/jq/main.jq (and any other files in the package)
 	# Then reads ./jq/packages/$dependencyName/jq.json, and installs $subdependencies.
 	# ./jq/packages/$dependencyName/.jq/packages/$subdependency/
-	# This continues recursively.	
+	# This continues recursively.
 	# TODO: build a dependency graph to detect circular dependencies.
 
 	# TODO: this array handling feels hacky.

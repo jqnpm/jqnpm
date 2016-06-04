@@ -66,7 +66,7 @@ function fetchFromJqJson {
 	debugInPackageIfAvailable 5 "(attempting fetch from jq.json) starting in path: $(echo -nE "$PWD" | replaceHomeWithTilde)"
 
 	# Reads jq.json, clone remote repos to ./jq/packages/username/reponame
-	# This continues recursively.	
+	# This continues recursively.
 
 	# TODO: this array handling feels hacky.
 	# http://mywiki.wooledge.org/BashFAQ/020

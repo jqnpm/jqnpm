@@ -14,10 +14,10 @@ This is experimental software, so [feedback is most appreciated](https://github.
 
 1. Run `git clean -idX :/` to clean up any generated file. Use with care.
 1. Create a new `git branch` where you add your changes.
-1. Edit `src/jqnpm` with your changes
+1. Edit files in `src/` with your code changes.
   - Follow current conventions to increase the chance of your patch being accepted.
 1. Write additional tests in a subfolder to `tests/`.
-  - Code with tests have a much, much higher chance of being accepted.
+  - Code with tests have a much, much higher chance of being accepted without further fixes.
 1. If you have changed code in `tests/*/package-source` subfolders, run `./tests/create-bundles.sh` to regenerate git `.bundle` files for tests.
 1. Run tests with `./tests/all.sh`.
 1. Repeat until your feature is done, well tested and all tests pass.
@@ -27,9 +27,13 @@ This is experimental software, so [feedback is most appreciated](https://github.
 ## Debugging
 
 
-### `export JQNPM_DEBUG_LEVEL=5`
+### `export JQNPM_DEBUG_LEVEL=4`
 
-Set the `JQNPM_DEBUG_LEVEL` in your shell to get some debugging output.
+Set the `JQNPM_DEBUG_LEVEL` in your shell to get some debugging output. You can also define it directly on the command line.
+
+```bash
+JQNPM_DEBUG_LEVEL=4 jqnpm execute
+```
 
 - `0` fatal
 - `1` errors
@@ -51,7 +55,7 @@ echo 'jq "$@"' >"jq-command-override.sh"
 chmod u+x "jq-command-override.sh"
 ```
 
-Now you can run `./tests/all.sh` against `jq` instead of using the *temporary `jq` wrapper* `jqnpm execute` - it is not to be used once `jq` is up to speed.
+Now you can run `./tests/all.sh` against the `jq` binary instead of using the *temporary `jq` wrapper* `jqnpm execute` -- it is not to be used once `jq` is up to speed.
 
 
 ### Custom remote server (or fake directory)
@@ -79,4 +83,4 @@ export JQNPM_REMOTE_SUFFIX=".bundle"
 
 ## Larger `jq.json` example.
 
-This example has been removed in favor of generating a package skeleton with `jqnpm generate`.
+This example has been removed in favor of generating a package skeleton with `jqnpm generate`. Generate a package and have a look!

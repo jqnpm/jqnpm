@@ -1,5 +1,5 @@
 function isDebugAtLevel {
-	(( "$#" < 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	local -i messageLevel="$1"
 	shift
 
@@ -12,30 +12,31 @@ function isDebugAtLevel {
 }
 
 function getMessageLevelName {
+	(( "$#" != 1 )) && die 100 "not the right number of arguments to '$FUNCNAME'"
 	case "$1" in
 		0)
-			echo -nE 'FATL'
+			consoleOutputSameLineWithColors "${COLOR_RED}FATL${COLOR_NO_COLOR}"
 			;;
 		1)
-			echo -nE 'ERRO'
+			consoleOutputSameLineWithColors "${COLOR_RED}ERRO${COLOR_NO_COLOR}"
 			;;
 		2)
-			echo -nE 'WARN'
+			consoleOutputSameLineWithColors "${COLOR_YELLOW}WARN${COLOR_NO_COLOR}"
 			;;
 		3)
-			echo -nE 'INFO'
+			consoleOutputSameLineWithColors "${COLOR_LIGHT_BLUE}INFO${COLOR_NO_COLOR}"
 			;;
 		4)
-			echo -nE 'DEBG'
+			consoleOutputSameLineWithColors "${COLOR_WHITE}DEBG${COLOR_NO_COLOR}"
 			;;
 		5)
-			echo -nE 'VRBO'
+			consoleOutputSameLineWithColors "VRBO"
 			;;
 		6)
-			echo -nE 'TRCE'
+			consoleOutputSameLineWithColors "${COLOR_LIGHT_GRAY}TRCE${COLOR_NO_COLOR}"
 			;;
 		*)
-			echo -nE 'OMG!'
+			consoleOutputSameLineWithColors "${COLOR_LIGHT_RED}OMG!${COLOR_NO_COLOR}"
 			;;
 	esac
 }
@@ -49,9 +50,9 @@ function debug {
 	then
 		local messageLevelName=$(getMessageLevelName "$messageLevel")
 
-		echo -nE "jqnpm: [${messageLevelName}]" >&2
-		echo -ne "\t" >&2
-		echo -E "$@" >&2
+		consoleOutputSameLine "jqnpm: [${messageLevelName}]" >&2
+		consoleOutputSameLineWithColors "\t" >&2
+		consoleOutput "$@" >&2
 	fi
 
 	return 0;

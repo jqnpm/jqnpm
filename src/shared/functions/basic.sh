@@ -42,13 +42,36 @@ function dashesToPascalCase {
 /g' | sed -e '/^-.$/ y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' -e 's/-//g' | joinLines
 }
 
-declare COLOR_BLUE="[0;34m"
-declare COLOR_RED="[0;31m"
-declare COLOR_LIGHT_RED="[1;31m"
-declare COLOR_LIGHT_GRAY="[0;37m"
-declare COLOR_LIGHT_GREEN="[1;32m"
-declare COLOR_LIGHT_BLUE="[1;34m"
-declare COLOR_LIGHT_CYAN="[1;36m"
-declare COLOR_YELLOW="[1;33m"
-declare COLOR_WHITE="[1;37m"
-declare COLOR_NO_COLOR="[0m"
+function consoleOutput {
+	echo -E "$@"
+}
+
+function consoleOutputSameLine {
+	echo -nE "$@"
+}
+
+function consoleOutputWithColors {
+	echo -e "$@"
+}
+
+function consoleOutputSameLineWithColors {
+	echo -ne "$@"
+}
+
+function consoleOutputEmptyLine {
+	echo -E
+}
+
+declare COLOR_BLUE="\033[0;34m"
+declare COLOR_RED="\033[0;31m"
+declare COLOR_LIGHT_RED="\033[1;31m"
+declare COLOR_LIGHT_GRAY="\033[0;37m"
+declare COLOR_LIGHT_GREEN="\033[1;32m"
+declare COLOR_LIGHT_BLUE="\033[1;34m"
+declare COLOR_LIGHT_CYAN="\033[1;36m"
+declare COLOR_YELLOW="\033[1;33m"
+declare COLOR_WHITE="\033[1;37m"
+
+declare COLOR_LIGHT_GRAY_UNDERLINE="\033[4;37m"
+
+declare COLOR_NO_COLOR="\033[0m"

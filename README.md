@@ -2,7 +2,7 @@
   <a href="https://github.com/joelpurra/jqnpm"><img src="https://rawgit.com/joelpurra/jqnpm/master/resources/logotype/penrose-triangle.svg" alt="jqnpm logotype, a Penrose triangle" width="100" border="0" /></a>
 </p>
 
-# [jqnpm](https://github.com/joelpurra/jqnpm) - [jq](https://stedolan.github.io/jq/) package manager
+# [jqnpm](https://github.com/joelpurra/jqnpm) -- [jq](https://stedolan.github.io/jq/) package manager
 
 A package manager built for the command-line JSON processor [`jq`](https://stedolan.github.io/jq/) as an example implementation. This is experimental software. [Want to contribute?](https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md)
 
@@ -25,16 +25,21 @@ On Mac with [Homebrew](http://brew.sh/):
 
 ```bash
 brew tap joelpurra/joelpurra
-brew install --HEAD jq          # Use --HEAD to get jq v1.5rc1+.
+brew install jq
 brew install jqnpm
 ```
 
 On other systems:
 
 - Clone or download, then symlink `src/jqnpm`. There is no build step.
-- Requirements:
-  - [jq](https://stedolan.github.io/jq/) 1.5rc1+ in your `$PATH`. See the [`stedolan/jq` master branch](https://github.com/stedolan/jq/). Tested with [jq-1.5rc1-4-g6e7cf81 (6e7cf81)](https://github.com/stedolan/jq/commit/6e7cf81d74f98c3c467371172906d9009009f8a0), which is not yet *fully* compatible with `jqnpm`.
-  - [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://code.google.com/p/shunit2/).
+- Requirements: [jq](https://stedolan.github.io/jq/) 1.5+, [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://code.google.com/p/shunit2/).
+
+
+Compatibility:
+
+- Tested with jq-1.5, which is [not yet *fully* compatible with `jqnpm`](https://github.com/joelpurra/jqnpm/blob/master/CONTRIBUTE.md#requirements-for-the-jq-binary).
+- For example deep package resolution doesn't work with plain `jq`. Without this feature, every dependency has to be installed in the package root.
+- See also the [`jqnpm`'s `package-root` fork of `jq`](https://github.com/joelpurra/jq/tree/package-root), which fixes these issues.
 
 
 
@@ -46,12 +51,20 @@ jqnpm help
 ```
 
 
+**Example 1**
+
 These are the extended steps from the demo animation above.
 
 ```shell
-cd my-project/                        # Your project.
-jqnpm init                            # Create 'jq.json', 'jq/main.jq', the local '.jq/' folder.
-jqnpm install joelpurra/jq-stress     # Installs into '.jq/packages/'.
+# Your new project folder.
+mkdir my-project
+cd my-project/
+
+# Create 'jq.json', 'jq/main.jq', the local '.jq/' folder.
+jqnpm init
+
+# Fetch package from github, installs it into '.jq/packages/'.
+jqnpm install joelpurra/jq-stress
 
 # Edit your 'jq/main.jq' file with your code.
 echo 'import "joelpurra/jq-stress" as Stress; Stress::remove("e")' > jq/main.jq
@@ -61,6 +74,7 @@ echo 'import "joelpurra/jq-stress" as Stress; Stress::remove("e")' > jq/main.jq
 echo '"Hey there!"' | jqnpm execute
 ```
 
+**Example 2**
 
 Example `jq/main.jq` combining two other packages; `jqnpm install joelpurra/jq-zeros && jqnpm install joelpurra/jq-dry`.
 
@@ -87,6 +101,12 @@ fib(8)
 | Zeros::pad(4; 0)
 ```
 
+As this example doesn't expect to read any JSON data, execute it with `--null-input`/`-n` as you normally would with `jq`.
+
+```shell
+jqnpm execute --null-input
+```
+
 
 
 ## Creating a package
@@ -94,17 +114,16 @@ fib(8)
 How to create a package of your own, using `jqnpm generate`. Share your code! &#x1f493;
 
 
-Guidelines
+**Guidelines**
 
 - The smaller package scope the better - it improves reusability through modularity.
-- One piece of functionality per package - *each package does only one thing, but does it well*.
+- One piece of functionality per package -- *each package does only one thing, but does it well*.
 - The [new github repository](https://github.com/new) name should start with `jq-`, be all lowercase and words are separated by dashes: `jq-good-tool`. The `jq-` prefix is to make it easier for others to see which of your repositories are jq packages.
 - The jq package name is written in `jq.json`. It is all lowercase and words are separated by dashes: `good-tool`. Note that there is no `jq-` prefix, as `jq.json` already knows it's package for jq.
 - Author information, software license and project links are written in `jq.json`.
 
 
-Steps
-
+**Steps**
 
 1. Create a [new github repository](https://github.com/new):
   - Choose a name starting with `jq-`, similar to `jq-good-tool`.
@@ -112,22 +131,23 @@ Steps
 1. On your computer, run `jqnpm generate <github username> <package name> "<one sentence to describe the package>"`:
   - `<github username>` should be obvious.
   - `<package name>` is the same as the git hub repository you just created, for example `jq-good-tool`.
-  - `"<one sentence to describe the package>"` is something snappy, like "This tool solves the worlds problems and can, contrary to a knife, only be used for good!"
+  - `"<one sentence to describe the package>"` is something snappy, like `"This tool solves the worlds problems and can, contrary to a knife, only be used for good!"`
 1. Push the code to github:
   - `git commit`
   - `git push`
-  - `git tag -a v0.1.0 -m v0.1.0 && git push origin v0.1.0"` (assuming your package version is `0.1.0`.)
+  - `git tag -a v0.1.0 -m v0.1.0 && git push origin v0.1.0` (assuming your package version is `0.1.0`.)
 1. Tell the world about it!
 
 
 
 ---
 
-## License
-Copyright (c) 2014, 2015, Joel Purra <http://joelpurra.com/>
-All rights reserved.
 
-When using **jqnpm**, comply to at least one of the three available licenses: BSD, MIT, GPL.
-Please see the LICENSE file for details.
+
+## License
+
+Copyright (c) 2014, 2015, [Joel Purra](http://joelpurra.com/). All rights reserved.
+
+When using [**jqnpm**](https://github.com/joelpurra/jqnpm), comply to at least one of the three available licenses: BSD, MIT, GPL. Please see the LICENSE file for details.
 
 

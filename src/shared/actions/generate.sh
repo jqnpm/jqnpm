@@ -123,7 +123,7 @@ function generate {
 	# Run template replacements.
 	for fileInOutput in "${filesInOutput[@]}";
 	do
-		debug 5 "Replacing values: '$(echo -nE "$fileInOutput" | replaceHomeWithTilde)'"
+		debug 4 "Replacing values: '$(echo -nE "$fileInOutput" | replaceHomeWithTilde)'"
 
 		local tempFilePath=$(getTempFilePath)
 
@@ -146,23 +146,23 @@ function generate {
 	# Set permissions for, and execute the tests.
 	local testPath="${pluginOutputPath}/tests/all.sh"
 
-	echo -E "Executing tests: '$(echo -nE "$testPath" | replaceHomeWithTilde)'"
+	consoleOutputWithColors "Executing tests: '${COLOR_WHITE}$(echo -nE "$testPath" | replaceHomeWithTilde)${COLOR_NO_COLOR}'"
 
 	chmod 'u+x' "$testPath"
 	( "$testPath" )
 
 	# Encourage following guidelines.
-	echo
-	echo -E "Package '${packageName}' has been generated in '$(echo -nE "$pluginOutputPath" | replaceHomeWithTilde)'."
-	echo
-	echo "Next steps:"
-	echo "  ${COLOR_WHITE}1. ${COLOR_NO_COLOR} Create a new respository called ${COLOR_WHITE}${fullPackageName}${COLOR_NO_COLOR} on ${COLOR_WHITE}https://github.com/new${COLOR_NO_COLOR}"
-	echo "  ${COLOR_WHITE}2. ${COLOR_NO_COLOR} Write code in ${COLOR_WHITE}jq/main.jq${COLOR_NO_COLOR}"
-	echo "  ${COLOR_WHITE}3. ${COLOR_NO_COLOR} Write tests in ${COLOR_WHITE}tests/all.sh${COLOR_NO_COLOR}"
-	echo "  ${COLOR_WHITE}4. ${COLOR_NO_COLOR} Write usage instructions in ${COLOR_WHITE}README.md${COLOR_NO_COLOR}"
-	echo "  ${COLOR_WHITE}5. ${COLOR_NO_COLOR} Commit your changes and push them."
-	echo "  ${COLOR_WHITE}6. ${COLOR_NO_COLOR} Create a new version tag and push it: ${COLOR_WHITE}git tag -a v${defaultPackageVersion} -m v${defaultPackageVersion} && git push origin v${defaultPackageVersion}${COLOR_NO_COLOR}"
-	echo
-	echo "Please read package guidelines on the jqnpm homepage."
-	echo -e "${COLOR_WHITE}https://github.com/joelpurra/jqnpm${COLOR_NO_COLOR}"
+	consoleOutputEmptyLine
+	consoleOutputWithColors "Package '${COLOR_WHITE}${packageName}${COLOR_NO_COLOR}' has been generated in '${COLOR_WHITE}$(echo -nE "$pluginOutputPath" | replaceHomeWithTilde)${COLOR_NO_COLOR}'."
+	consoleOutputEmptyLine
+	consoleOutputWithColors "Next steps:"
+	consoleOutputWithColors "  ${COLOR_WHITE}1. ${COLOR_NO_COLOR} Create a new respository called ${COLOR_WHITE}${fullPackageName}${COLOR_NO_COLOR} on ${COLOR_WHITE}https://github.com/new${COLOR_NO_COLOR}"
+	consoleOutputWithColors "  ${COLOR_WHITE}2. ${COLOR_NO_COLOR} Write code in ${COLOR_WHITE}jq/main.jq${COLOR_NO_COLOR}"
+	consoleOutputWithColors "  ${COLOR_WHITE}3. ${COLOR_NO_COLOR} Write tests in ${COLOR_WHITE}tests/all.sh${COLOR_NO_COLOR}"
+	consoleOutputWithColors "  ${COLOR_WHITE}4. ${COLOR_NO_COLOR} Write usage instructions in ${COLOR_WHITE}README.md${COLOR_NO_COLOR}"
+	consoleOutputWithColors "  ${COLOR_WHITE}5. ${COLOR_NO_COLOR} Commit your changes and push them."
+	consoleOutputWithColors "  ${COLOR_WHITE}6. ${COLOR_NO_COLOR} Create a new version tag and push it: ${COLOR_WHITE}git tag -a v${defaultPackageVersion} -m v${defaultPackageVersion} && git push origin v${defaultPackageVersion}${COLOR_NO_COLOR}"
+	consoleOutputEmptyLine
+	consoleOutputWithColors "Please read package guidelines on the jqnpm homepage."
+	consoleOutputWithColors "${COLOR_WHITE}https://github.com/joelpurra/jqnpm${COLOR_NO_COLOR}"
 }

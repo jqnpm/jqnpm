@@ -10,9 +10,9 @@ This is experimental software, so feedback is most appreciated!
 
 ## Known issues
 
-- The package names are currently duplicated between `./jq.json` and `./jq/main.jq`. This is due to two things.
-  - `jq` is unaware of each dependency's subdirectory.
-  - `jqnpm` uses only `./jq/main.jq` at the moment. The `main` responsibility might end up in `jq` instead.
+- The package names are currently duplicated between `./jq.json` and `./jq/main.jq`. This is due to two things:
+  1. `jq` is unaware of each dependency's subdirectory.
+  1. `jqnpm` uses only `./jq/main.jq` at the moment. The `main` responsibility might end up in `jq` instead.
 - Packages are not recursively resolved during execution. This is due to relative module paths starting with `./` only being resolved against the *initial* `jq/main.jq`, not subsequently called dependencies.
 
 
@@ -21,7 +21,7 @@ This is experimental software, so feedback is most appreciated!
 
 - Dependencies are stored in `./.jq/packages/` per package.
 - A local cache in `~/.jq/` stores remote repositories.
-- No *centrally managed* server side package repository is needed to publish your packages - just create a repository on github!
+- No *centrally managed* server side package repository is needed to publish your packages -- just create a repository on github!
 - As packages are stored on [github.com](https://github.com/) (by default), an account there is required for `jqnpm`. Because github allows private repositories, you can use `jqnpm` for private packages; this has not been tested yet.
 - Can also use bitbucket and other online services, where usernames or organization names act as namespaces.
 
