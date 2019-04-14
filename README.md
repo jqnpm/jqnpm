@@ -32,7 +32,7 @@ brew install jqnpm
 **On other systems**
 
 - Clone or download, then symlink `src/jqnpm`. There is no build step.
-- Requirements: [jq](https://stedolan.github.io/jq/) 1.5+, [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://code.google.com/p/shunit2/).
+- Requirements: [jq](https://stedolan.github.io/jq/) 1.5+, [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://github.com/kward/shunit2).
 
 
 **Compatibility with `jq`**
