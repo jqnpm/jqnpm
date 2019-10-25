@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/joelpurra/jqnpm"><img src="https://rawgit.com/joelpurra/jqnpm/master/resources/logotype/penrose-triangle.svg" alt="jqnpm logotype, a Penrose triangle" width="100" border="0" /></a>
+  <a href="https://github.com/joelpurra/jqnpm"><img src="https://raw.githubusercontent.com/joelpurra/jqnpm/master/resources/logotype/penrose-triangle.svg?sanitize=true" alt="jqnpm logotype, a Penrose triangle" width="100" border="0" /></a>
 </p>
 
 # [<%=FULL_PACKAGE_NAME%>](https://github.com/<%=GITHUB_USERNAME%>/<%=FULL_PACKAGE_NAME%>)
