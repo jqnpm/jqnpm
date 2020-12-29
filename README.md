@@ -24,9 +24,11 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 **On Mac with [Homebrew](http://brew.sh/)**
 
 ```bash
-brew tap joelpurra/joelpurra
-brew install jq
-brew install jqnpm
+# NOTE: if homebrew-core's jq was installed previously.
+brew unlink jq
+
+# NOTE: due to brew formula issues, this always installs a forked jq with package-root support.
+brew install joelpurra/joelpurra/jqnpm
 ```
 
 **On other systems**
