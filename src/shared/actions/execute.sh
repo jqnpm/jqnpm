@@ -14,7 +14,7 @@ function execute {
 	if hasPackageMetadataFile && isDebugAtLevel 4;
 	then
 		# TODO: this array handling feels hacky.
-		# http://mywiki.wooledge.org/BashFAQ/020
+		# https://mywiki.wooledge.org/BashFAQ/020
 		unset directDependencyNames i
 		while IFS= read -r -d '' dependencyName; do
 			directDependencyNames[i++]="$dependencyName"

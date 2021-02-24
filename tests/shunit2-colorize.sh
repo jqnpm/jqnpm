@@ -1,10 +1,10 @@
 # shunit2-colorize. Add colors to shUnit2 output.
-# By Joel Purra, http://joelpurra.com/
+# By Joel Purra, https://joelpurra.com/
 
-# Based on maven-antsy-color by Julian Simpson, "The Build Doctor", http://www.build-doctor.com/
+# Based on maven-antsy-color by Julian Simpson, "The Build Doctor", https://www.build-doctor.com/
 # https://github.com/builddoctor/maven-antsy-color
-# Julian Simpson thanks: Bernd Jünger, http://bjuenger.de/ for http://blog.blindgaenger.net/colorize_maven_output.html
-# Julian Simpson thanks: http://johannes.jakeapp.com/blog/category/fun-with-linux/200901/maven-colorized
+# Julian Simpson thanks: Bernd Jünger, https://bjuenger.de/ for https://blog.blindgaenger.net/colorize_maven_output.html
+# Julian Simpson thanks: https://johannes.jakeapp.com/blog/category/fun-with-linux/200901/maven-colorized
 
 
 # Colorize shUnit2 Output.

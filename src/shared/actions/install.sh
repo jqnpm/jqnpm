@@ -99,7 +99,7 @@ function installFromJqJson {
 	# TODO: build a dependency graph to detect circular dependencies.
 
 	# TODO: this array handling feels hacky.
-	# http://mywiki.wooledge.org/BashFAQ/020
+	# https://mywiki.wooledge.org/BashFAQ/020
 	unset directDependencyNames i
 	while IFS= read -r -d '' dependencyName; do
 		directDependencyNames[i++]="$dependencyName"

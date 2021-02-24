@@ -61,14 +61,14 @@ In order to understand the direction of the development, you could spend an hour
 ### Style
 
 - Based on [Node Package Manager](https://npmjs.org/)'s style.
-- All package versions follow the [Semantic Versioning](http://semver.org/) scheme strictly.
+- All package versions follow the [Semantic Versioning](https://semver.org/) scheme strictly.
 - Version parsing and matching aims to follow [node-semver](https://github.com/npm/node-semver).
 - Written in bash shell scripts, but it might not be the optimal choice in the long run.
 
 
 ### Requirements for the `jq` binary
 
-- Implement a simple package directory finding logic in `jq`, like how [modules](http://nodejs.org/api/modules.html) installed by `npm` are [resolved](http://nodejs.org/api/modules.html#modules_all_together) by `node`.
+- Implement a simple package directory finding logic in `jq`, like how [modules](https://nodejs.org/api/modules.html) installed by `npm` are [resolved](https://nodejs.org/api/modules.html#modules_all_together) by `node`.
 - No `module` statement is necessary. It only clutters jq script files, as metadata is best kept in `./jq.json` per package.
 - A simple `import` statement accepting a string and an alias: `import "<package>" as <alias>;`.
   - No other configuration, such as versions, goes in the `import` statement.
@@ -77,7 +77,7 @@ In order to understand the direction of the development, you could spend an hour
 - Implement a simple per-package `./jq.json` lookup for the `"main": "./some-path/completely-separate-from-module-name.jq"` property, or fall back to `./jq/main.jq`.
 
 
-#### Example [`import` resolving algorithm](http://nodejs.org/api/modules.html#modules_all_together)
+#### Example [`import` resolving algorithm](https://nodejs.org/api/modules.html#modules_all_together)
 
 - Here `P` means the package root: the first of the current or any parent directory which contains a directory `.jq/`.
 - Here `D` means a directory referenced during the lookups.

@@ -18,10 +18,12 @@
         "jq": "^1.5.0",
         "jqnpm": "^1.0.0"
     },
-    "licenses": [{
-        "type": "MIT",
-        "url": "http://opensource.org/licenses/MIT"
-    }],
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    ],
     "keywords": [
         "jq-package"
     ]

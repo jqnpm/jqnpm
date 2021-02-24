@@ -8,8 +8,8 @@ then
 fi
 
 function crossplatformReadlink {
-	# http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
-	# http://stackoverflow.com/a/1116890
+	# https://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
+	# https://stackoverflow.com/a/1116890
 	TARGET_FILE="$1"
 
 	cd `dirname $TARGET_FILE`

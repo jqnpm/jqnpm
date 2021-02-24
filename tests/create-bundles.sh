@@ -95,7 +95,7 @@ function createBundle {
 
 function createBundles {
 	# TODO: this array handling feels hacky.
-	# http://mywiki.wooledge.org/BashFAQ/020
+	# https://mywiki.wooledge.org/BashFAQ/020
 	unset packageSourceDirectories i
 	while IFS= read -r -d '' packageSourceDirectory; do
 		packageSourceDirectories[i++]="$packageSourceDirectory"
@@ -104,7 +104,7 @@ function createBundles {
 	for packageSourceDirectory in "${packageSourceDirectories[@]}"
 	do
 		# TODO: this array handling feels hacky.
-		# http://mywiki.wooledge.org/BashFAQ/020
+		# https://mywiki.wooledge.org/BashFAQ/020
 		unset packageDirectories i
 		while IFS= read -r -d '' packageDirectory; do
 			packageDirectories[i++]="$packageDirectory"

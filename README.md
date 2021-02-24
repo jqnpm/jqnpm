@@ -14,14 +14,14 @@ A package manager built for the command-line JSON processor [`jq`](https://stedo
 
 
 - Uses only namespaced packages, for example `jqnpm install joelpurra/jq-stress`, on github.com by default; the example package would automatically be cloned from [`github.com/joelpurra/jq-stress`](https://github.com/joelpurra/jq-stress).
-- Uses strict [semantic versioning](http://semver.org/) tags.
+- Uses strict [semantic versioning](https://semver.org/) tags.
 - Use the [packages in the `jqnpm` wiki](https://github.com/joelpurra/jqnpm/wiki) - it's easy to [create and publish a package of your own](https://github.com/joelpurra/jqnpm#creating-a-package). Share your code! &#x1f493;
 
 
 
 ## Installation
 
-**On Mac with [Homebrew](http://brew.sh/)**
+**On Mac with [Homebrew](https://brew.sh/)**
 
 ```bash
 # NOTE: if homebrew-core's jq was installed previously.
@@ -34,7 +34,7 @@ brew install joelpurra/joelpurra/jqnpm
 **On other systems**
 
 - Clone or download, then symlink `src/jqnpm`. There is no build step.
-- Requirements: [jq](https://stedolan.github.io/jq/) 1.5+, [bash](https://www.gnu.org/software/bash/) 4+, [git](http://git-scm.com/), [shUnit2](https://github.com/kward/shunit2).
+- Requirements: [jq](https://stedolan.github.io/jq/) 1.5+, [bash](https://www.gnu.org/software/bash/) 4+, [git](https://git-scm.com/), [shUnit2](https://github.com/kward/shunit2).
 
 
 **Compatibility with `jq`**
@@ -155,7 +155,7 @@ How to create a package of your own, using `jqnpm generate`. Share your code! &#
 
 ## License
 
-Copyright (c) 2014, 2015, [Joel Purra](http://joelpurra.com/). All rights reserved.
+Copyright (c) 2014, 2015, [Joel Purra](https://joelpurra.com/). All rights reserved.
 
 When using [**jqnpm**](https://github.com/joelpurra/jqnpm), comply to at least one of the three available licenses: BSD, MIT, GPL. Please see the LICENSE file for details.
 
